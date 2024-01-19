@@ -24,7 +24,7 @@ Tool  | Singularity Container | URL
 Repeat Modeler   | tetools_repeat.sif | [Github](https://github.com/Dfam-consortium/TETools)
 Repeat Masker    | tetools_repeat.sif | [Github](https://github.com/Dfam-consortium/TETools)
 Mikado           | mikado-2.3.3.sif   | [Link](https://quay.io/repository/biocontainers/mikado?tab=history)
-Snap             | snap-20131129.sif  |
+Snap             | snap-20131129.sif  | [Link](https://hub.docker.com/r/biocontainers/snap/tags)
 braker2          | braker2.sif        | [Link](https://quay.io/repository/biocontainers/braker2?tab=tags)
 hisat2           | hisat2.sif         | [Link](https://quay.io/repository/biocontainers/hisat2?tab=tags)
 fgenesh          | fgenesh.sif        | private
