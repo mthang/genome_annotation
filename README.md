@@ -39,6 +39,10 @@ Tool | URL
 -----------|-----------
 Kallisto   | [Link](https://pachterlab.github.io/kallisto/download)
 stringtie  | [Link](https://ccb.jhu.edu/software/stringtie/)
+
+## Single Threaded Tool
+Tool | URL
+-----------|-----------
 PseudoPipe | [Link](http://pseudogene.org/pseudopipe/)
 
 ## Homologue Database
