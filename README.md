@@ -2,10 +2,10 @@
 
 <br>
 ## Singularity Image
-* mikado-2.3.3.sif
-* snap-20131129.sif
-* evm-1.1.1.sif
-* augustus-3.4.0.sif
+* mikado-2.3.3.sif \
+* snap-20131129.sif \
+* evm-1.1.1.sif \
+* augustus-3.4.0.sif \
 * hisat2.sif
 * tetools_repeat.sif
 * pasa_2.5.2.sif
