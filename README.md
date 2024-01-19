@@ -12,14 +12,22 @@
 7) Gene Structure Annotation and Analysis Using PASA: pre Evidence Modeler
 8) Evidence Modeler
 9) Gene Structure Annotation and Analysis Using PASA: post Evidence Modeler (add UTR)
-10) https://github.com/PASApipeline/PASApipeline/blob/master/docs/index.asciidoc
+10) Pseudogenes detection
+11) Expression of CDS
+12) Filter unexpressed CDS from GFF3
+13) GFF3 statistics
+14) https://github.com/PASApipeline/PASApipeline/blob/master/docs/index.asciidoc
 
 ## Singularity Image
-* mikado-2.3.3.sif <br/> 
+Tool  | Singularity Container 
+---------------| -------------
+Repeat Modeler | tetools_repeat.sif
+Repeat Masker  | tetools_repeat.sif
+Mikado         | mikado-2.3.3.sif
+
 * snap-20131129.sif <br/>
 * evm-1.1.1.sif 
 * hisat2.sif
-* tetools_repeat.sif
 * pasa_2.5.2.sif
 * fgenesh.sif
 * braker2.sif
