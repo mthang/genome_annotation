@@ -14,7 +14,9 @@
 11) Expression of CDS
 12) Filter unexpressed CDS from GFF3
 13) GFF3 statistics
-14) https://github.com/PASApipeline/PASApipeline/blob/master/docs/index.asciidoc
+14) Functional Annotation
+15) Pangenome analysis
+16) https://github.com/PASApipeline/PASApipeline/blob/master/docs/index.asciidoc
 
 ## Singularity Image
 Tool  | Singularity Container | URL
