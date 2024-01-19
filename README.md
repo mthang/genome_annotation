@@ -34,10 +34,11 @@ PASA             | pasa_2.5.2.sif     | [Link](https://quay.io/repository/biocon
 Eggnog-mapper    | eggnog-mapper_2.1.9.sif | [Link](https://quay.io/repository/biocontainers/eggnog-mapper?tab=tags)
 OrthoFinder      | OrthoFinder-2.5.4.sif   | [Link](https://quay.io/repository/biocontainers/orthofinder?tab=tags)
 
-## Tool
+## Binary Tool
 Tool | URL
 -----------|-----------
 Kallisto   | [Link](https://pachterlab.github.io/kallisto/download)
+stringtie  | [Link](https://ccb.jhu.edu/software/stringtie/)
 
 
 
