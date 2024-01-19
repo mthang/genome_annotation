@@ -25,11 +25,11 @@ Repeat Modeler   | tetools_repeat.sif | [Github](https://github.com/Dfam-consort
 Repeat Masker    | tetools_repeat.sif | [Github](https://github.com/Dfam-consortium/TETools)
 Mikado           | mikado-2.3.3.sif   | [Link](https://quay.io/repository/biocontainers/mikado?tab=history)
 Snap             | snap-20131129.sif  |
-braker2          | braker2.sif        |
-hisat2           | hisat2.sif         |
-fgenesh          | fgenesh.sif        |
-Evidence Modeler | evm-1.1.1.sif      |
-PASA             | pasa_2.5.2.sif     |
-Eggnog-mapper    | eggnog-mapper_2.1.9.sif |
-OrthoFinder      | OrthoFinder-2.5.4.sif   |
+braker2          | braker2.sif        | [Link](https://quay.io/repository/biocontainers/braker2?tab=tags)
+hisat2           | hisat2.sif         | [Link](https://quay.io/repository/biocontainers/hisat2?tab=tags)
+fgenesh          | fgenesh.sif        | private
+Evidence Modeler | evm-1.1.1.sif      | [Link](https://quay.io/repository/biocontainers/evidencemodeler?tab=tags)
+PASA             | pasa_2.5.2.sif     | [Link](https://quay.io/repository/biocontainers/pasa?tab=tags)
+Eggnog-mapper    | eggnog-mapper_2.1.9.sif | [Link](https://quay.io/repository/biocontainers/eggnog-mapper?tab=tags)
+OrthoFinder      | OrthoFinder-2.5.4.sif   | [Link](https://quay.io/repository/biocontainers/orthofinder?tab=tags)
 
