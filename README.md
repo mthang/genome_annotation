@@ -1,5 +1,3 @@
-#Genome Annotation Tools
-
 # Genome Annotation Workflow
 1) repeat modeler
 2) repeat masking
@@ -39,6 +37,9 @@ Tool | URL
 -----------|-----------
 Kallisto   | [Link](https://pachterlab.github.io/kallisto/download)
 stringtie  | [Link](https://ccb.jhu.edu/software/stringtie/)
+PseudoPipe | [Link](http://pseudogene.org/pseudopipe/)
 
+## Homologue Database
 
+## main steps
 
