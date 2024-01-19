@@ -20,16 +20,16 @@
 
 ## Singularity Image
 Tool  | Singularity Container 
----------------| -------------
-Repeat Modeler | tetools_repeat.sif
-Repeat Masker  | tetools_repeat.sif
-Mikado         | mikado-2.3.3.sif
+-----------------|--------------
+Repeat Modeler   | tetools_repeat.sif
+Repeat Masker    | tetools_repeat.sif
+Mikado           | mikado-2.3.3.sif
+Snap             | snap-20131129.sif
+braker2          | braker2.sif
+hisat2           | hisat2.sif
+fgenesh          | fgenesh.sif
+Evidence Modeler | evm-1.1.1.sif
+PASA             | pasa_2.5.2.sif
+Eggnog-mapper    | eggnog-mapper_2.1.9.sif
+OrthoFinder      | OrthoFinder-2.5.4.sif
 
-* snap-20131129.sif <br/>
-* evm-1.1.1.sif 
-* hisat2.sif
-* pasa_2.5.2.sif
-* fgenesh.sif
-* braker2.sif
-* eggnog-mapper_2.1.9.sif
-* OrthoFinder-2.5.4.sif
