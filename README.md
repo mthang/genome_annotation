@@ -19,17 +19,17 @@
 14) https://github.com/PASApipeline/PASApipeline/blob/master/docs/index.asciidoc
 
 ## Singularity Image
-Tool  | Singularity Container 
------------------|--------------
-Repeat Modeler   | tetools_repeat.sif
-Repeat Masker    | tetools_repeat.sif
-Mikado           | mikado-2.3.3.sif
-Snap             | snap-20131129.sif
-braker2          | braker2.sif
-hisat2           | hisat2.sif
-fgenesh          | fgenesh.sif
-Evidence Modeler | evm-1.1.1.sif
-PASA             | pasa_2.5.2.sif
-Eggnog-mapper    | eggnog-mapper_2.1.9.sif
-OrthoFinder      | OrthoFinder-2.5.4.sif
+Tool  | Singularity Container | URL
+-----------------|--------------------|------------
+Repeat Modeler   | tetools_repeat.sif | [Github](https://github.com/Dfam-consortium/TETools)
+Repeat Masker    | tetools_repeat.sif | [Github](https://github.com/Dfam-consortium/TETools)
+Mikado           | mikado-2.3.3.sif   | [Link](https://quay.io/repository/biocontainers/mikado?tab=history)
+Snap             | snap-20131129.sif  |
+braker2          | braker2.sif        |
+hisat2           | hisat2.sif         |
+fgenesh          | fgenesh.sif        |
+Evidence Modeler | evm-1.1.1.sif      |
+PASA             | pasa_2.5.2.sif     |
+Eggnog-mapper    | eggnog-mapper_2.1.9.sif |
+OrthoFinder      | OrthoFinder-2.5.4.sif   |
 
