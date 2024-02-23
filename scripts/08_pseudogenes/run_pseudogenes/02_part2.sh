@@ -1,8 +1,9 @@
 #!/bin/bash
 
 GENOME=Zm-Il14H
-
-CHR_DIR=/maize/${GENOME}/pseudogenes/EVM
+## This script is to perform pseudo sequence alignment and provide a summary table of pseudogenes.
+## make sure the CHR_DIR is the same as the CHR_DIR in 01_run_ppipe.sh script
+CHR_DIR=/data/maize/${GENOME}/pseudogenes/EVM
 
 while IFS="" read -r chr || [ -n "$chr" ]
 do
