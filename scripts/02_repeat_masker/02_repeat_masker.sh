@@ -6,7 +6,7 @@
 #                                        #
 ##########################################
 
-#PBS -P your_project_here
+#PBS -P your_project_code
 #PBS -l ncpus=24
 #PBS -l mem=20GB
 #PBS -l walltime=48:00:0
