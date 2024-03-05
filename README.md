@@ -127,10 +127,37 @@ done
 #### Raw data and Resource
 - Alignment file in BAM format
 - The existing genome anontation file (GFF) of the genome of interest
-- PBS script [04_stringtie.sh]((https://github.com/mthang/genome_annotation/blob/main/scripts/04_stringtie/04_stringtie.sh)) is located in the scripts folder
+- The installation of stringtie on your computer is required
+- PBS script [04_stringtie.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/04_stringtie/04_stringtie.sh) is located in the scripts folder
 ```
 ${STRINGTIE} ${HISAT_BAM} -l merged -p 5 -G ${STRINGTIE_GFF_DIR}/${GENOME}/${GENOME}.gff3 -o ${STRINGTIE_GFF_DIR}/${GENOME}/stringtie/merged_stringtie.gtf
 
 ${STRINGTIE} --merge -p 5 -G ${STRINGTIE_GFF_DIR}/${GENOME}/${GENOME}.gff3 -o ${STRINGTIE_GFF_DIR}/${GENOME}/stringtie/final_merged_stringtie.gtf ${STRINGTIE_GFF_DIR}/${GENOME}/stringtie/merged_stringtie.gtf
 ```
+
+### De novo transcriptome assembly
+#### Raw data and Resource
+- RNAseq data in FASTQ.gz format
+- The trinity singularity container is used (see link above)
+- PBS script [04_trinity.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/04_trinity/04_trinity.sh) is located in the scripts folder
+```
+singularity exec ${TRINITY_CONTAINER} Trinity --seqType fq --CPU 50 --max_memory 100G --min_glue 2 --min_kmer_cov 2 --path_reinforcement_distance 75 --group_pairs_distance 250 --min_contig_length 200 --full_cleanup --left ${INPUT_DIR}/${sample}_1.fq.gz --right ${INPUT_DIR}/${sample}_2.fq.gz --output ${FASTQ_DIR}/trinity
+```
+
+### Genome annotation
+#### Raw data and Resource
+- RNAseq data in FASTQ.gz format
+- The trinity singularity container is used (see link above)
+- PBS script [05_braker.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/05_braker/05_braker.sh) is located in the scripts folder
+```
+braker2.sif braker.pl --species=master_Zm-Il14H \
+                                           --grass \
+                                           --AUGUSTUS_CONFIG_PATH=/g/data/kw68/analysis/augustus/config \
+                                           --genome=${ASSEMBLY} \
+                                           --prot_seq=${PROTEIN} \
+                                           --bam=${BAM}/b73_sorted_all.bam \
+                                           --workingdir=${OUTPUT_DIR}/annotation_skipOptimize \
+                                           --prg=gth --gth2traingenes --softmasking --gff3 --cores=44 --skipOptimize
+```
+
 ## Reference
