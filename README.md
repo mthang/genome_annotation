@@ -216,8 +216,8 @@ singularity exec  ${SINGULARITY_BINDPATH}/singularity/fgenesh.sif run_fgenesh_2_
 - The existing genome annnotation file (gff3) of the genome of interest downloaded from the public repository (i.e NCBI)
 - The snap singulariy container (see link above)
 - PBS script is located in the scripts folder
-   - convert reference to snap format and run snap [01_snap_ref.sh)https://github.com/mthang/genome_annotation/blob/main/scripts/05_snap/01_snap_ref.sh)
-   - convert snap output file (zff) to gff file format [02_snap_conversion]https://github.com/mthang/genome_annotation/blob/main/scripts/05_snap/02_snap_conversion.sh) 
+   - convert reference to snap format and run snap [01_snap_ref.s](https://github.com/mthang/genome_annotation/blob/main/scripts/05_snap/01_snap_ref.sh)
+   - convert snap output file (zff) to gff file format [02_snap_conversion](https://github.com/mthang/genome_annotation/blob/main/scripts/05_snap/02_snap_conversion.sh) 
 ```
 ASSEMBLY=${SINGULARITY_BINDPATH}/${SPECIES}/${SPECIES}.genome.fa
 
