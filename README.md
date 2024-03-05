@@ -38,10 +38,11 @@ OrthoFinder      | OrthoFinder-2.5.4.sif   | [Link](https://quay.io/repository/b
 ## Binary Tool
 Tool | URL
 -----------|-----------
-Kallisto   | [Link](https://pachterlab.github.io/kallisto/download)
-stringtie  | [Link](https://ccb.jhu.edu/software/stringtie/)
-bedops     | [Link](https://bedops.readthedocs.io/en/latest/index.html)
-faSomeRecords | [Link](https://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/faSomeRecords)
+Kallisto   | [download](https://pachterlab.github.io/kallisto/download)
+stringtie  | [download](https://ccb.jhu.edu/software/stringtie/)
+bedops     | [download](https://bedops.readthedocs.io/en/latest/index.html)
+faSomeRecords | [download](https://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/faSomeRecords)
+seqkit | [download](https://bioinf.shenwei.me/seqkit/download/)
 
 ## Single Threaded Tool
 Tool | URL
@@ -602,5 +603,34 @@ SCRATCH_DIR=/scratch
 TEMP_DIR=/tmp
 
 singularity exec ${SINGULARITY_BIND}/singularity/eggnog-mapper_2.1.9.sif emapper.py --data_dir /g/data/kw68/data/eggnogDB -m 'diamond' -i ${SINGULARITY_BIND}/genome_maize/${GENOME}/gff/final/final_prot.fa --itype 'proteins' --matrix 'BLOSUM62' --gapopen 11 --gapextend 1 --sensmode sensitive --dmnd_iterate no --score 0.001  --seed_ortholog_evalue 0.001 --target_orthologs=all --go_evidence=non-electronic --no_file_comments --report_orthologs  --output=${SINGULARITY_BIND}/genome_maize/${GENOME}/gff/final/eggNog --cpu 12 --scratch_dir ${SCRATCH_DIR} --temp_dir ${TEMP_DIR}
-```  
+```
+### Pangenome Analysis
+#### Input data and Resource
+- scripts can be found in [12_orthofinder]https://github.com/mthang/genome_annotation/tree/main/scripts/12_orthofinder) folder.
+- Step 1 [01_reformat_fasta_header.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/12_orthofinder/01_reformat_fasta_header.sh)
+```
+GENOME_DIR=/genome_maize
+
+while IFS="" read -r genome || [ -n "$genome" ]
+do
+   GENOME=`echo $genome | cut -d" " -f1`
+   echo $GENOME
+   cd ${GENOME_DIR}/${GENOME}/gff/final
+
+   cut -f1-2,8-9 eggNog.emapper.annotations | grep -v "^#" > header_format.txt
+   awk 'BEGIN {FS="\t"; OFS=","} {print $1"\t"$2"|TM|"$1"|"$3"|"$4}' header_format.txt > header_format_tab.txt
+
+   sed '/^>/ s/ .*//' final_prot.fa > final_prot_update.fa
+   cut -f1 header_format_tab.txt > fasta_id.txt
+   faSomeRecords final_prot_update.fa fasta_id.txt ${GENOME}_prot.fa
+
+   # sed -i '/^>/ s/ .*//' test.fa
+   #/g/data/kw68/software/seqkit replace -p "(.*)" --replacement "{kv}" --kv-file tmp_header.txt test.fa
+
+   /g/data/kw68/software/seqkit replace -p "(.+)" -r '{kv}' -k header_format_tab.txt ${GENOME}_prot.fa > ${GENOME}_filtered.fa
+
+   sed -i 's/\ /\_/g' ${GENOME}_filtered.fa
+
+done < pasa.txt
+```
 ## Reference
