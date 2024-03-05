@@ -548,7 +548,8 @@ cut -f1 ${SINGULARITY_BIND}/${GENOME}/kallisto/pasa_quant/cds_no_expression.tsv 
 ### Statistic of GFF3
 #### Input data and Resource
 - genome annotation file in GFF3 format
-- mikada singularity container is used (see link above)
+- mikado singularity container is used (see link above)
+- PBS scripts [10_mikadp](https://github.com/mthang/genome_annotation/tree/main/scripts/10_mikado] is located in the scripts folder
 - before filtering out the unexpressed CDS
   - pre-filtering gff3 file run this script [01_mikado_pre_kallisto.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/10_mikado/01_mikado_pre_kallisto.sh)
 ```
