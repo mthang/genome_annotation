@@ -287,7 +287,7 @@ singularity exec ${SINGULARITY_BINDPATH}/pasa_2.5.2.sif /usr/local/src/PASApipel
 #### Input data and Resource
 - A list of genome annotation files (gff3) from Braker (i.e augustus and genmark), Fgenesh, SNAP and PASA
 - The evidence modeler singularity container is used (see link above)
-- PBS scripts [06_EvidenceModeler](https://github.com/mthang/genome_annotation/tree/main/scripts/06_EvidenceModeler) is located in the scripts folder
+- PBS scripts are located in [06_EvidenceModeler](https://github.com/mthang/genome_annotation/tree/main/scripts/06_EvidenceModeler) folder.
   - scripts to format input files before running Evidence Modeler
   - [01_convert_gtf.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/06_EvidenceModeler/01_convert_gtf.sh) is to convert genmark gtf to gff3 format and convert augustus gff3 file to Evidence Modeler gff3 format
   - [02_sort_gff.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/06_EvidenceModeler/02_sort_gff.sh) is to sort the entry in the gff3 files.
@@ -303,7 +303,7 @@ singularity exec ${SINGULARITY_BINDPATH}/pasa_2.5.2.sif /usr/local/src/PASApipel
 - the sqlite file produced in the first PASA run
 - a config file (annotCompare.config) from PASA program which can be found in the PASA singularity container
 - The PASA singularity container (see link above)
-- PBS script [02_run_PASA_utr.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/07_PASA/02_run_PASA_utr.sh) is located in the scripts folder
+- PBS script [02_run_PASA_utr.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/07_PASA/02_run_PASA_utr.sh) is located in [07_PASA](https://github.com/mthang/genome_annotation/tree/main/scripts/07_PASA) folder.
 ```
 PATH2SQLITE="/scratch/kw68/wt5249/temp/maize/${GENOME}.sqlite"
 
@@ -321,6 +321,7 @@ singularity exec ${SINGULARITY_BINDPATH}/pasa_2.5.2.sif /usr/local/src/PASApipel
 - masked reference genome in FASTA format
 - final gff3 from Evidence Modeler
 - The PseudoPipe tool is used (see link above)
+- scripts can be found in [08_pseudogenes](https://github.com/mthang/genome_annotation/tree/main/scripts/08_pseudogenes) folder
 
 ### Pre-pseudogenes detection
 - Step 1 [01_EVM_GFF2SEQ.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/08_pseudogenes/pre_pseudogenes/01_EVM_GFF2SEQ.sh)
@@ -510,6 +511,7 @@ done < pasa.txt
 - RNASeq data in FASTQ.gz format
 - Use PASA singularity container to extract CDS
 - Kallisto is used to perform the alignment
+- PBS scripts can be found in [09_kallisto](https://github.com/mthang/genome_annotation/tree/main/scripts/09_kallisto) folder.
 - Step 1 [01_get_CDS.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/09_kallisto/01_get_CDS.sh)
 ```
 GFF=pasa_pseudogenes_filtered_prekallisto.gff3
@@ -549,7 +551,7 @@ cut -f1 ${SINGULARITY_BIND}/${GENOME}/kallisto/pasa_quant/cds_no_expression.tsv 
 #### Input data and Resource
 - genome annotation file in GFF3 format
 - mikado singularity container is used (see link above)
-- PBS scripts [10_mikadp](https://github.com/mthang/genome_annotation/tree/main/scripts/10_mikado] is located in the scripts folder
+- PBS scripts [10_mikado](https://github.com/mthang/genome_annotation/tree/main/scripts/10_mikado] is located in the scripts folder
 - before filtering out the unexpressed CDS
   - pre-filtering gff3 file run this script [01_mikado_pre_kallisto.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/10_mikado/01_mikado_pre_kallisto.sh)
 ```
@@ -572,4 +574,33 @@ singularity exec /g/data/kw68/singularity/mikado-2.3.3.sif mikado util grep ${SI
 
 singularity exec /g/data/kw68/singularity/mikado-2.3.3.sif mikado util stats ${SINGULARITY_BIND}/${GENOME}/gff/final/pasa_pseudogenes_filtered_postkallisto.gff3 ${SINGULARITY_BIND}/${GENOME}/gff/final/pasa_pseudogenes_filtered_postkallisto.stats
 ```
+### Functional Annotation
+#### Input data and Resource
+- Reference genome in FASTA format
+- gff3 file obtained in the post kallisto process
+- set up the eggNog database prior to run the functional annotation
+- PBS scripts can be found in [11_eggNog](https://github.com/mthang/genome_annotation/tree/main/scripts/11_eggNog]) folder.
+- Step 1 [01_get_protein_sequence](https://github.com/mthang/genome_annotation/blob/main/scripts/11_eggNog/01_get_protein_sequence.sh) to obtain protein sequences
+```
+GENOME="genome name or id"
+
+export SINGULARITY_BINDPATH="/path/to/be/mounted"
+
+SING_IMAGE_DIR=/singularity
+
+GFF3=${SINGULARITY_BINDPATH}/${GENOME}/gff/final/pasa_pseudogenes_filtered_postkallisto.gff3
+
+FASTA=${SINGULARITY_BINDPATH}/${GENOME}/repeatmasker/${GENOME}.genome.fa.masked
+
+singularity exec ${SING_IMAGE_DIR}/pasa_2.5.2.sif /usr/local/src/PASApipeline/misc_utilities/gff3_file_to_proteins.pl  ${GFF3} ${FASTA} > ${SINGULARITY_BINDPATH}/${GENOME}/gff/final/final_prot.fa
+```
+- Step 2 [02_run_eggnog.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/11_eggNog/02_run_eggnog.sh) annotate protein sequences
+```
+GENOME="genome name or id"
+
+SCRATCH_DIR=/scratch
+TEMP_DIR=/tmp
+
+singularity exec ${SINGULARITY_BIND}/singularity/eggnog-mapper_2.1.9.sif emapper.py --data_dir /g/data/kw68/data/eggnogDB -m 'diamond' -i ${SINGULARITY_BIND}/genome_maize/${GENOME}/gff/final/final_prot.fa --itype 'proteins' --matrix 'BLOSUM62' --gapopen 11 --gapextend 1 --sensmode sensitive --dmnd_iterate no --score 0.001  --seed_ortholog_evalue 0.001 --target_orthologs=all --go_evidence=non-electronic --no_file_comments --report_orthologs  --output=${SINGULARITY_BIND}/genome_maize/${GENOME}/gff/final/eggNog --cpu 12 --scratch_dir ${SCRATCH_DIR} --temp_dir ${TEMP_DIR}
+```  
 ## Reference
