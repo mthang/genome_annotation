@@ -211,4 +211,43 @@ singularity exec  ${SINGULARITY_BINDPATH}/singularity/fgenesh.sif run_fgenesh_2_
         ${SINGULARITY_BIND}/${GENOME}/fgenesh/gff3 -sort -print_exons
 ```
 
+### SNAP
+#### Raw data and Resource
+- The existing genome annnotation file (gff3) of the genome of interest downloaded from the public repository (i.e NCBI)
+- The snap singulariy container (see link above)
+- PBS script is located in the scripts folder
+   - convert reference to snap format and run snap [01_snap_ref.sh)https://github.com/mthang/genome_annotation/blob/main/scripts/05_snap/01_snap_ref.sh)
+   - convert snap output file (zff) to gff file format [02_snap_conversion]https://github.com/mthang/genome_annotation/blob/main/scripts/05_snap/02_snap_conversion.sh) 
+```
+ASSEMBLY=${SINGULARITY_BINDPATH}/${SPECIES}/${SPECIES}.genome.fa
+
+OUTPUT_DIR=${SINGULARITY_BINDPATH}/${SPECIES}/snap
+
+# step 1 -transform the existing genome annotation file (gff3) to the snap format (zff)
+perl ${SINGULARITY_BIND}/singularity/gff3_to_zff.pl ${SINGULARITY_BINDPATH}/${SPECIES}/${SPECIES}.genome.fa ${SINGULARITY_BINDPATH}/${SPECIES}/${SPECIES}.gff3 > ${OUTPUT_DIR}/${SPECIES}.zff
+
+cd ${OUTPUT_DIR}
+
+# step 2 - validate the zff file
+singularity exec ${SINGULARITY_BIND}/singularity/snap-20131129.sif fathom -validate ${OUTPUT_DIR}/${SPECIES}.zff ${SINGULARITY_BINDPATH}/${SPECIES}/${SPECIES}.genome.fa  > ${OUTPUT_DIR}/${SPECIES}.validate
+
+singularity exec ${SINGULARITY_BIND}/singularity/snap-20131129.sif fathom ${OUTPUT_DIR}/${SPECIES}.zff ${SINGULARITY_BINDPATH}/${SPECIES}/${SPECIES}.genome.fa -gene-stats > ${OUTPUT_DIR}/gene-stats.log 2>&1
+
+singularity exec ${SINGULARITY_BIND}/singularity/snap-20131129.sif fathom ${OUTPUT_DIR}/${SPECIES}.zff ${SINGULARITY_BINDPATH}/${SPECIES}/${SPECIES}.genome.fa  -validate > ${OUTPUT_DIR}/validate.log 2>&1
+singularity exec ${SINGULARITY_BIND}/singularity/snap-20131129.sif fathom ${OUTPUT_DIR}/${SPECIES}.zff ${SINGULARITY_BINDPATH}/${SPECIES}/${SPECIES}.genome.fa  -categorize 1000 > ${OUTPUT_DIR}/categorize.log 2>&1
+singularity exec ${SINGULARITY_BIND}/singularity/snap-20131129.sif fathom ${OUTPUT_DIR}/uni.ann ${OUTPUT_DIR}/uni.dna -export 1000 -plus > ${OUTPUT_DIR}/uni-plus.log 2>&1
+
+# step 3 - create paramater files
+mkdir params
+cd params
+
+singularity exec ${SINGULARITY_BIND}/singularity/snap-20131129.sif forge ${OUTPUT_DIR}/export.ann ${OUTPUT_DIR}/export.dna > ${OUTPUT_DIR}/forge.log 2>&1
+
+perl ${SINGULARITY_BIND}/singularity/hmm-assembler.pl ${SINGULARITY_BINDPATH}/${SPECIES}/${SPECIES}.genome.fa  ${OUTPUT_DIR}/params/ > ${OUTPUT_DIR}/${SPECIES}.hmm
+
+# step 4 - run snap
+# caution : the snap output might be produced in a pbs log file
+singularity exec ${SINGULARITY_BIND}/singularity/snap-20131129.sif snap -gff ${OUTPUT_DIR}/${SPECIES}.hmm ${SINGULARITY_BINDPATH}/${SPECIES}/${SPECIES}.genome.fa > ${OUTPUT_DIR}/snap.zff
+```
+
 ## Reference
