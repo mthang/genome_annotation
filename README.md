@@ -458,7 +458,7 @@ done < ${CHR_DIR}/chr/chr_id.txt
 - output_pgenes.txt file from pseudogenes detection
 - Step 1 [01_filter_pseudogenes](https://github.com/mthang/genome_annotation/blob/main/scripts/08_pseudogenes/post_pseudogenes/01_filter_pseudogenes.sh) is to filter out the psuedogenes
 ```
-GENOME="genome name/id"
+GENOME="genome name or id"
 INPUT_DIR=/path/to/pseudogenes/EVM_UTR
 OUTPUT_DIR=/path/to/pseudogenes
 
@@ -503,5 +503,72 @@ do
 
    awk 'NR==FNR{a[$0]=$0;next} !($1 in a) {print a[(FNR)],$0}' ${ID_FILE} ${GENOME_DIR}/${GENOME}/gff/final/mrnaGeneAll.list > ${GENOME_DIR}/${GENOME}/gff/final/keep.list
 done < pasa.txt
+```
+### Align RNAseq to CDS and filter out unexpressed CDS
+#### Input data and Resource
+- Reference genome in FASTA format
+- RNASeq data in FASTQ.gz format
+- Use PASA singularity container to extract CDS
+- Kallisto is used to perform the alignment
+- Step 1 [01_get_CDS.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/09_kallisto/01_get_CDS.sh)
+```
+GFF=pasa_pseudogenes_filtered_prekallisto.gff3
+
+mkdir -p ${SINGULARITY_BIND}/${GENOME}/kallisto
+
+# PASA (UTR) after pseudogenes removed
+singularity exec ${SINGULARITY_BINDPATH}/pasa_2.5.2.sif /usr/local/src/PASApipeline/misc_utilities/gff3_file_to_proteins.pl ${SINGULARITY_BIND}/${GENOME}/gff/final/${GFF} ${SINGULARITY_BIND}/${GENOME}/${GENOME}.genome.fa CDS > ${SINGULARITY_BIND}/${GENOME}/kallisto/pasa_wo_pseudogenes.fa
+```
+- Step 2 [02_run_kallisto.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/09_kallisto/02_run_kallisto.sh)
+```
+GENOME="genome name or id"
+
+KALLISTO=/software/kallisto/kallisto
+
+INDEX=pasa_wo_pseudogenes.idx
+
+${KALLISTO} index -i ${SINGULARITY_BIND}/${GENOME}/kallisto/pasa_wo_pseudogenes.idx ${SINGULARITY_BIND}/${GENOME}/kallisto/pasa_wo_pseudogenes.fa
+
+${KALLISTO} quant --threads=20 -i ${SINGULARITY_BIND}/${GENOME}/kallisto/${INDEX} -o ${SINGULARITY_BIND}/${GENOME}/kallisto/pasa_quant ${SINGULARITY_BINDPATH}/b73_merged_1.fq.gz ${SINGULARITY_BINDPATH}/b73_merged_2.fq.gz
+```
+- Step 3 [03_filter.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/09_kallisto/03_filter.sh)
+```
+GENOME="genome name or id"
+
+GFF3_DIR=/genome_maize/
+
+ID_FILE=kallisto/pasa_quant/id_no_expression.txt
+
+awk '$5==0 {print}' ${SINGULARITY_BIND}/${GENOME}/kallisto/pasa_quant/abundance.tsv > ${SINGULARITY_BIND}/${GENOME}/kallisto/pasa_quant/cds_no_expression.tsv
+
+awk '$5!=0 {print}' ${SINGULARITY_BIND}/${GENOME}/kallisto/pasa_quant/abundance.tsv > ${SINGULARITY_BIND}/${GENOME}/kallisto/pasa_quant/cds_w_expression.tsv
+
+cut -f1 ${SINGULARITY_BIND}/${GENOME}/kallisto/pasa_quant/cds_no_expression.tsv | sort | uniq | grep -v "target_id" > ${SINGULARITY_BIND}/${GENOME}/kallisto/pasa_quant/id_no_expression.txt
+```
+### Statistic of GFF3
+#### Input data and Resource
+- genome annotation file in GFF3 format
+- mikada singularity container is used (see link above)
+- before filtering out the unexpressed CDS
+  - pre-filtering gff3 file run this script [01_mikado_pre_kallisto.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/10_mikado/01_mikado_pre_kallisto.sh)
+```
+GENOME="genome name or id"
+GENOME_DIR=/genome_maize
+PASA_NUM=967772
+
+GFF3=${GENOME}.sqlite.gene_structures_post_PASA_updates.${PASA_NUM}.gff3
+
+singularity exec /singularity/mikado-2.3.3.sif mikado util grep ${SINGULARITY_BIND}/${GENOME}/gff/final/keep.list ${SINGULARITY_BINDPATH}/pasa/${GFF3} ${SINGULARITY_BIND}/${GENOME}/gff/final/pasa_pseudogenes_filtered_prekallisto.gff3
+
+singularity exec /singularity/mikado-2.3.3.sif mikado util stats ${SINGULARITY_BIND}/${GENOME}/gff/final/pasa_pseudogenes_filtered_prekallisto.gff3 ${SINGULARITY_BIND}/${GENOME}/gff/final/pasa_pseudogenes_filtered_prekallisto.stats
+```
+- after filtering out the unexpressed CDS
+  - post-filtering gff3 file run this script [02_mikado_post_kallisto.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/10_mikado/02_mikado_post_kallisto.sh)
+```
+GENOME="genome name or id"
+
+singularity exec /g/data/kw68/singularity/mikado-2.3.3.sif mikado util grep ${SINGULARITY_BIND}/${GENOME}/kallisto/pasa_quant/keep_expression.list ${SINGULARITY_BIND}/${GENOME}/gff/final/pasa_pseudogenes_filtered_prekallisto.gff3 ${SINGULARITY_BIND}/${GENOME}/gff/final/pasa_pseudogenes_filtered_postkallisto.gff3
+
+singularity exec /g/data/kw68/singularity/mikado-2.3.3.sif mikado util stats ${SINGULARITY_BIND}/${GENOME}/gff/final/pasa_pseudogenes_filtered_postkallisto.gff3 ${SINGULARITY_BIND}/${GENOME}/gff/final/pasa_pseudogenes_filtered_postkallisto.stats
 ```
 ## Reference
