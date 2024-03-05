@@ -618,7 +618,7 @@ do
    cd ${GENOME_DIR}/${GENOME}/gff/final
 
    cut -f1-2,8-9 eggNog.emapper.annotations | grep -v "^#" > header_format.txt
-   awk 'BEGIN {FS="\t"; OFS=","} {print $1"\t"$2"|TM|"$1"|"$3"|"$4}' header_format.txt > header_format_tab.txt
+   awk -v var="$GENOME" 'BEGIN {FS="\t"; OFS=","} {print $1"\t"$2"|"var"|"$1"|"$3"|"$4}' header_format.txt > header_format_tab.txt
 
    sed '/^>/ s/ .*//' final_prot.fa > final_prot_update.fa
    cut -f1 header_format_tab.txt > fasta_id.txt
