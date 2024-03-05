@@ -46,6 +46,13 @@ Tool | URL
 PseudoPipe | [Link](http://pseudogene.org/pseudopipe/)
 
 ## Homologue Database
+Five non-redundant databases are downloaded from [Uniprot](https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/) 
+1)Brachypodium distachyon
+2)Oryza sativa subsp. japonica
+3)Setaria italica
+4)Sorghum bicolor
+5)Zea mays
+
 
 ## main steps
 
