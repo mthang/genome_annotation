@@ -58,7 +58,7 @@ Five non-redundant databases are downloaded from [Uniprot](https://ftp.uniprot.o
 This Genome Annotation pipeline is designed to annotate plant genomes and improve the newly annotated genomes with transcriptome dataset. Genome Annotation pipeline can be summarized in few steps such as repeat detection, gene model prediction, obtain consensus gene model, add utr to the gene model (optional) and retain gene model with gene expression (if transcriptome data is available). Eggnog-mapper is used to perform the functional annotation of the gene model produced in the Genome Annotation Tool, and Orthofinder takes the protein sequences to perform the pangenome analysis.
 
 ### Repeat Modeler
-#### Raw data and Resource
+#### Input data and Resource
 - Reference genome / de novo assembled genome in FASTA format
 - The Repeat Modeler singularity container is used (see the link above)
 - PBS script [01_repeatmodeler.sh](https://github.com/mthang/genome_annotation/tree/main/scripts/01_repeat_modeler) is located in the scripts folder
@@ -73,7 +73,7 @@ Where ${SINGULARITY_BINDPATH} is the variable defined the location of tool folde
 ```
 
 ### Repeat Masker
-#### Raw data and Resource
+#### Input data and Resource
 - Reference genome in FASTA format
 - Repeats from Repeat modelers in FASTA format
 - The Repeat Masking singularity container is used (see the link above)
@@ -83,7 +83,7 @@ singularity exec ${SINGULARITY_BINDPATH}/tetools_repeat.sif RepeatMasker  -xsmal
 ```
 
 ### Aligment
-#### Raw data and Resource
+#### Input data and Resource
 - Reference genome in FASTA format
 - RNAseq data (i.e single- or paired-end) in FASTQ.gz format
 - Hisat2 and samtools for alignment and sorting BAM file respectively.
@@ -124,7 +124,7 @@ samtools sort \
 done
 ```
 ###  Merge BAM with GFF file
-#### Raw data and Resource
+#### Input data and Resource
 - Alignment file in BAM format
 - The existing genome anontation file (GFF) of the genome of interest
 - The installation of stringtie on your computer is required
@@ -136,7 +136,7 @@ ${STRINGTIE} --merge -p 5 -G ${STRINGTIE_GFF_DIR}/${GENOME}/${GENOME}.gff3 -o ${
 ```
 
 ### De novo transcriptome assembly
-#### Raw data and Resource
+#### Input data and Resource
 - RNAseq data in FASTQ.gz format
 - The trinity singularity container is used (see link above)
 - PBS script [04_trinity.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/04_trinity/04_trinity.sh) is located in the scripts folder
@@ -146,7 +146,7 @@ singularity exec ${TRINITY_CONTAINER} Trinity --seqType fq --CPU 50 --max_memory
 
 ### Genome annotation 
 ### BRAKER
-#### Raw data and Resource
+#### Input data and Resource
 - Reference genome in FASTA format
 - RNAseq data in BAM format
 - Homologues Sequences in FASTA format
@@ -164,7 +164,7 @@ braker2.sif braker.pl --species=master_Zm-Il14H \
 ```
 
 ### Fgenesh
-#### Raw data and Resource
+#### Input data and Resource
 - Repeat masked reference genome in FASTA format
 - a fgenesh [config file](https://github.com/mthang/genome_annotation/blob/main/scripts/05_fgenesh/plant.cfg) which defines path to the reference files (i.e GENE_PARAM, PIPE_PARAM, PROTEIN_DB and BLASTP) and tools.
    - GENE_PARAM - gene prediction parameters (i.e gene matrix provided by fgenesh)
@@ -212,7 +212,7 @@ singularity exec  ${SINGULARITY_BINDPATH}/singularity/fgenesh.sif run_fgenesh_2_
 ```
 
 ### SNAP
-#### Raw data and Resource
+#### Input data and Resource
 - The existing genome annnotation file (gff3) of the genome of interest downloaded from the public repository (i.e NCBI)
 - The snap singulariy container (see link above)
 - PBS script is located in the scripts folder
@@ -251,7 +251,7 @@ singularity exec ${SINGULARITY_BIND}/singularity/snap-20131129.sif snap -gff ${O
 ```
 
 ### Gene Structure Annotation and Analysis Using PASA: pre Evidence Modeler
-#### Raw data and Resource
+#### Input data and Resource
 - de novo assembled transcripts from trinity in FASTA format
 - a config file (alignAssembly.config) from PASA program which can be found in the PASA singularity container
 - The PASA singularity container (see link above)
@@ -282,7 +282,7 @@ singularity exec ${SINGULARITY_BINDPATH}/pasa_2.5.2.sif /usr/local/src/PASApipel
 ```
 
 ###  Evidence Modeler
-#### Raw data and Resource
+#### Input data and Resource
 - A list of genome annotation files (gff3) from Braker (i.e augustus and genmark), Fgenesh, SNAP and PASA
 - The evidence modeler singularity container is used (see link above)
 - PBS scripts [06_EvidenceModeler](https://github.com/mthang/genome_annotation/tree/main/scripts/06_EvidenceModeler) is located in the scripts folder
@@ -295,7 +295,7 @@ singularity exec ${SINGULARITY_BINDPATH}/pasa_2.5.2.sif /usr/local/src/PASApipel
   - [06_combine_evm.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/06_EvidenceModeler/06_combine_evm.sh) combines each individual gff3 file into a single gff3 file.
 
 ### Gene Structure Annotation and Analysis Using PASA: post Evidence Modeler (add UTR)
-#### Raw data and Resource
+#### Input data and Resource
 - a final gff3 file from Evidence Modeler
 - de novo assembled transcripts from Trinity in FASTA format
 - the sqlite file produced in the first PASA run
@@ -313,5 +313,7 @@ singularity exec ${SINGULARITY_BINDPATH}/pasa_2.5.2.sif /usr/local/src/PASApipel
 
 singularity exec ${SINGULARITY_BINDPATH}/pasa_2.5.2.sif /usr/local/src/PASApipeline/Launch_PASA_pipeline.pl -c ${SINGULARITY_BINDPATH}/${PASA_DIR}/${GENOME}/sample_data/mysql.confs/annotCompare.config --CPU 2 --TRANSDECODER -A -g ${SINGULARITY_BINDPATH}/${PASA_DIR}/${GENOME}/sample_data/${GENOME}.genome.fa -t ${SINGULARITY_BINDPATH}/${PASA_DIR}/${GENOME}/sample_data/Trinity.fasta
 ```
+
+### Pseudogenes detection
 
 ## Reference
