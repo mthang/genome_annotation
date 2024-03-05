@@ -150,7 +150,7 @@ singularity exec ${TRINITY_CONTAINER} Trinity --seqType fq --CPU 50 --max_memory
 - Reference genome in FASTA format
 - RNAseq data in BAM format
 - Homologues Sequences in FASTA format
-- The brker singularity container is used (see link above)
+- The braker singularity container is used (see link above)
 - PBS script [05_braker.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/05_braker/05_braker.sh) is located in the scripts folder
 ```
 braker2.sif braker.pl --species=master_Zm-Il14H \
@@ -161,6 +161,54 @@ braker2.sif braker.pl --species=master_Zm-Il14H \
                                            --bam=${BAM}/b73_sorted_all.bam \
                                            --workingdir=${OUTPUT_DIR}/annotation_skipOptimize \
                                            --prg=gth --gth2traingenes --softmasking --gff3 --cores=44 --skipOptimize
+```
+
+### Fgenesh
+#### Raw data and Resource
+- Repeat masked reference genome in FASTA format
+- a fgenesh [config file](https://github.com/mthang/genome_annotation/blob/main/scripts/05_fgenesh/plant.cfg) which defines path to the reference files (i.e GENE_PARAM, PIPE_PARAM, PROTEIN_DB and BLASTP) and tools.
+   - GENE_PARAM - gene prediction parameters (i.e gene matrix provided by fgenesh)
+   - PIPE_PARAM - location of fgenesh parameters files 
+   - PROTEIN_DB - protein database
+   - BLASTP - path to executable blastp program
+- The fgenesh singulartiy image 
+- PBS script [05_fgenesh.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/05_fgenesh/05_fgenesh.sh) is located in the scripts folder
+```
+cpu=20
+GENOME=GenomeOfInterest
+
+cd ${SINGULARITY_BIND}/${GENOME}/fgenesh
+mkdir gff3
+mkdir results
+mkdir contigs
+
+#1)  make sequence list
+singularity exec ${SINGULARITY_BINDPATH}/singularity/fgenesh.sif split_multi_fasta.pl ${SINGULARITY_BIND}/${GENOME}/repeatmasker/${GENOME}.genome.fa.masked \
+       -name seq_id \
+       -dir ${SINGULARITY_BIND}/${GENOME}/fgenesh/contigs \
+       -ext fa \
+       -col 60 \
+       -mklist ${SINGULARITY_BIND}/${GENOME}/fgenesh/contigs.list
+
+#2) make sequence list with softmasked sequence
+singularity exec  ${SINGULARITY_BINDPATH}/singularity/fgenesh.sif split_multi_fasta.pl ${SINGULARITY_BIND}/${GENOME}/repeatmasker/${GENOME}.genome.fa.masked \
+        -name seq_id \
+        -dir ${SINGULARITY_BIND}/${GENOME}/fgenesh/contigs \
+        -ext fa.masked \
+        -col 60 \
+        -mklist ${SINGULARITY_BIND}/${GENOME}/fgenesh/contigsN.list
+
+#3) run fgenesh
+singularity exec  ${SINGULARITY_BINDPATH}singularity/fgenesh.sif run_pipe.pl ${SINGULARITY_BIND}/${GENOME}/fgenesh/plant.cfg \
+        -l ${SINGULARITY_BIND}/${GENOME}/fgenesh/contigs/contigs.list \
+        -m ${SINGULARITY_BIND}/${GENOME}/fgenesh/contigs/contigsN.list \
+        -d ${SINGULARITY_BIND}/${GENOME}/fgenesh/results \
+        -w ${SINGULARITY_BIND}/${GENOME}/fgenesh/tmp 2> run_plant.log
+
+#4 run convert resn3 to gff3 format
+singularity exec  ${SINGULARITY_BINDPATH}/singularity/fgenesh.sif run_fgenesh_2_gff3.pl \
+        ${SINGULARITY_BIND}/${GENOME}/fgenesh/results \
+        ${SINGULARITY_BIND}/${GENOME}/fgenesh/gff3 -sort -print_exons
 ```
 
 ## Reference
