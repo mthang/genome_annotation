@@ -2,8 +2,9 @@
 1) Repeat Modeler
 2) Repeat Masking
 3) Alignment
-4) De novo transcriptome assembly
-5) Genome annotation
+4) Merge BAM with GFF file
+5) De novo transcriptome assembly
+6) Genome annotation
    1. Braker
    2. Snap
    3. Fgenesh
@@ -82,6 +83,7 @@ singularity exec ${SINGULARITY_BINDPATH}/tetools_repeat.sif RepeatMasker  -xsmal
 ```
 
 ### Aligment
+#### Raw data and Resource
 - Reference genome in FASTA format
 - RNAseq data (i.e single- or paired-end) in FASTQ.gz format
 - Hisat2 and samtools for alignment and sorting BAM file respectively.
@@ -121,5 +123,14 @@ samtools sort \
       rm ${SINGULARITY_BIND}/${GENOME}/hisat/${sampleName}.sam
 done
 ```
+###  Merge BAM with GFF file
+#### Raw data and Resource
+- Alignment file in BAM format
+- The existing genome anontation file (GFF) of the genome of interest
+- PBS script [04_stringtie.sh]((https://github.com/mthang/genome_annotation/blob/main/scripts/04_stringtie/04_stringtie.sh)) is located in the scripts folder
+```
+${STRINGTIE} ${HISAT_BAM} -l merged -p 5 -G ${STRINGTIE_GFF_DIR}/${GENOME}/${GENOME}.gff3 -o ${STRINGTIE_GFF_DIR}/${GENOME}/stringtie/merged_stringtie.gtf
 
+${STRINGTIE} --merge -p 5 -G ${STRINGTIE_GFF_DIR}/${GENOME}/${GENOME}.gff3 -o ${STRINGTIE_GFF_DIR}/${GENOME}/stringtie/final_merged_stringtie.gtf ${STRINGTIE_GFF_DIR}/${GENOME}/stringtie/merged_stringtie.gtf
+```
 ## Reference
