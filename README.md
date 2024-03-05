@@ -41,6 +41,7 @@ Tool | URL
 Kallisto   | [Link](https://pachterlab.github.io/kallisto/download)
 stringtie  | [Link](https://ccb.jhu.edu/software/stringtie/)
 bedops     | [Link](https://bedops.readthedocs.io/en/latest/index.html)
+faSomeRecords | [Link](https://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/faSomeRecords)
 
 ## Single Threaded Tool
 Tool | URL
@@ -413,6 +414,7 @@ done < ${DATA_DIR}/chr/chr_id.txt
 ### Run Pseudogenes detection
 ### Input and Resource
 - Input data will be available after running the scripts in pre-presudogenes detection step
+- require python2
 - The pseudopipe scripts are not PBS compatible
 - Step 1 [01_run_ppipe.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/08_pseudogenes/run_pseudogenes/01_run_ppipe.sh)
 ```
@@ -452,4 +454,54 @@ do
 done < ${CHR_DIR}/chr/chr_id.txt
 ```
 ### Post-pseudogenes detection
+### Input data and Resource
+- output_pgenes.txt file from pseudogenes detection
+- Step 1 [01_filter_pseudogenes](https://github.com/mthang/genome_annotation/blob/main/scripts/08_pseudogenes/post_pseudogenes/01_filter_pseudogenes.sh) is to filter out the psuedogenes
+```
+GENOME="genome name/id"
+INPUT_DIR=/path/to/pseudogenes/EVM_UTR
+OUTPUT_DIR=/path/to/pseudogenes
+
+while IFS="" read -r chr || [ -n "$chr" ]
+do
+    echo ${chr}
+    awk '($6 > 0.7 && $11 < 0.0000000001 && $12 > 0.4) {print}' ${INPUT_DIR}/${chr}/output/pgenes/output_pgenes.txt  |  cut -f5,6,11,12,14  |  sort | uniq | grep -v "query" >> ${OUTPUT_DIR}/pseudogene_all_evm_utr_id_frag70_e10_ident40perc.txt
+done < ${INPUT_DIR}/chr_scaffold_id.txt
+
+
+# generate uniq id file
+cut -f1 ${OUTPUT_DIR}/pseudogene_all_evm_utr_id_frag70_e10_ident40perc.txt | sort | uniq > ${OUTPUT_DIR}/pseudogene_all_evm_utr_id_frag70_e10_ident40perc_uniq_id.txt
+```
+- the output file from Step 1
+- the GFF3 with UTR added from PASA
+- Step 2 [02_filter_GFF3.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/08_pseudogenes/post_pseudogenes/02_filter_GFF3.sh)
+```
+# The input of this script is a tab delimiter file (i.e pasa.txt) contains two columns 1) species and 2)PASA num
+UPDATE=update
+
+PASA_GFF3_DIR=/genome_maize/pasa
+
+GENOME_DIR=/genome_maize
+
+while IFS="" read -r genome || [ -n "$genome" ]
+do
+   GENOME=`echo $genome | cut -d" " -f1`
+   PASA_NUM=`echo $genome | cut -d" " -f2`
+   echo $GENOME
+   echo $PASA_NUM
+
+   GFF3=${GENOME}.sqlite.gene_structures_post_PASA_updates.${PASA_NUM}.gff3
+
+   #filter out the DUP genes and keep the PSSD (pseudogenes) only
+   grep -v "DUP" ${GENOME_DIR}/${GENOME}/pseudogenes/pseudogene_all_evm_utr_id_frag70_e10_ident40perc.txt > ${GENOME_DIR}/${GENOME}/pseudogenes/pseudogene_all_evm_utr_id_frag70_e10_ident40perc_uniq_id_${UPDATE}.txt
+
+   ID_FILE=${GENOME_DIR}/${GENOME}/pseudogenes/pseudogene_all_evm_utr_id_frag70_e10_ident40perc_uniq_id_${UPDATE}.txt
+
+   mkdir -p ${GENOME_DIR}/${GENOME}/gff/final
+
+   awk '$3=="mRNA" {print}' ${PASA_GFF3_DIR}/${GFF3} | cut -f 9 | sed 's/ID=//g' | sed 's/Parent=//g' | sed 's/;/\t/g' | cut -f 1,2 > ${GENOME_DIR}/${GENOME}/gff/final/mrnaGeneAll.list
+
+   awk 'NR==FNR{a[$0]=$0;next} !($1 in a) {print a[(FNR)],$0}' ${ID_FILE} ${GENOME_DIR}/${GENOME}/gff/final/mrnaGeneAll.list > ${GENOME_DIR}/${GENOME}/gff/final/keep.list
+done < pasa.txt
+```
 ## Reference
