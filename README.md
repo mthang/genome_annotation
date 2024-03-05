@@ -1,6 +1,6 @@
 # Genome Annotation Workflow
-1) Repeat modeler
-2) Repeat masking
+1) Repeat Modeler
+2) Repeat Masking
 3) Alignment
 4) De novo transcriptome assembly
 5) Genome annotation
@@ -76,7 +76,7 @@ Where ${SINGULARITY_BINDPATH} is the variable defined the location of tool folde
 - Reference genome in FASTA format
 - Repeats from Repeat modelers in FASTA format
 - The Repeat Masking singularity container is used (see the link above)
-- PBS script (02_repeat_masker.sh) is located in the scripts folder
+- PBS script [02_repeat_masker.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/02_repeat_masker/02_repeat_masker.sh) is located in the scripts folder
 ```
 singularity exec ${SINGULARITY_BINDPATH}/tetools_repeat.sif RepeatMasker  -xsmall -pa 24 -gff -rmblast_dir /software/rmblast-2.11.0/bin/ -lib ${SINGULARITY_BINDPATH}/${GENOME}/consensi.fa.classified -dir ${SINGULARITY_BINDPATH}/${GENOME}/repeatmasker ${SINGULARITY_BINDPATH}/${GENOME}/${GENOME}.genome.fa
 ```
@@ -85,7 +85,7 @@ singularity exec ${SINGULARITY_BINDPATH}/tetools_repeat.sif RepeatMasker  -xsmal
 - Reference genome in FASTA format
 - RNAseq data (i.e single- or paired-end) in FASTQ.gz format
 - Hisat2 and samtools for alignment and sorting BAM file respectively.
-- PBS script (03_hisat2.sh) is located in the scripts folder
+- PBS script [03_hisat2.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/03_hisat/03_hisat2.sh) is located in the scripts folder
 ```
 for sample in ${SAMPLE[@]}
 do
