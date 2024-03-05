@@ -607,7 +607,8 @@ singularity exec ${SINGULARITY_BIND}/singularity/eggnog-mapper_2.1.9.sif emapper
 ### Pangenome Analysis
 #### Input data and Resource
 - eggNog Functional annotation output file
-- protein sequences fasta file used in eggNog step  
+- protein sequences fasta file used in eggNog step
+- Orthofinder singularity container is used (see link above)
 - scripts can be found in [12_orthofinder]https://github.com/mthang/genome_annotation/tree/main/scripts/12_orthofinder) folder.
 - Step 1 [01_reformat_fasta_header.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/12_orthofinder/01_reformat_fasta_header.sh)
 ```
@@ -644,4 +645,28 @@ DATA_DIR=${SINGULARITY_BIND}/data/orthofinder_all
 #memory exceeded issue when the number species is growing
 singularity exec ${SINGULARITY_BIND}/singularity/OrthoFinder-2.5.4.sif orthofinder -t 30 -f ${DATA_DIR}
 ```
+
+### Orthologues Genes
+#### Input data and Resource
+- Orthogroups.GeneCount.tsv file from Orthofinder
+- Orthogroup Sequences in Orthogroups_Sequences folder
+- Custom scripts in [13_GOfilter](https://github.com/mthang/genome_annotation/tree/main/scripts/13_OGfilter) folder is used
+- make changes in [runOGfilter.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/13_OGfilter/runOGfilter.sh) to subset core, shell and cloud genes.
+  - Core genes - a unique gene found in all species (N);
+     - set MIN_SPECIES = 0.92 in runOGfilter.sh
+     - use [OGFilter_max.py](https://github.com/mthang/genome_annotation/blob/main/scripts/13_OGfilter/OGFilter_max.py)
+  - Shell genes - a unique gene found in all species (N - 1);
+     - set MIN_SPECIES = 0.15 in runOGfilter.sh
+     - use [OGFilter_min_max.py](https://github.com/mthang/genome_annotation/blob/main/scripts/13_OGfilter/OGFilter_min_max.py)  
+  - Cloud genes - a unique gene found in a single species;
+     - set MIN_SPECIES = 0.15 in runOGfilter.sh
+     - use [OGFilter_min.py](https://github.com/mthang/genome_annotation/blob/main/scripts/13_OGfilter/OGFilter_min.py)
+- this [script](https://github.com/mthang/genome_annotation/blob/main/scripts/13_OGfilter/make_genes_table.sh) is to convert the output file produced by runOGfilter.sh to a tabular file with the following columns:
+   - Ortholog_Filename
+   - Taxonomy
+   - Gene
+   - Sequence_Name
+   - Description
+   - Preferred_Name
+   - Protein_Sequence
 ## Reference
