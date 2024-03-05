@@ -59,14 +59,67 @@ This Genome Annotation pipeline is designed to annotate plant genomes and improv
 ### Repeat Modeler
 #### Raw data and Resource
 - Reference genome / de novo assembled genome in FASTA format
-- The Repeat Modeler tool is used (see the link above)
-- The PBS script is located in the scripts folder
-
+- The Repeat Modeler singularity container is used (see the link above)
+- PBS script (01_repeatmodeler.sh) is located in the scripts folder
 ```
 # Step 1 - index reference genome fasta file 
 singularity exec ${SINGULARITY_BINDPATH}/tetools_repeat.sif BuildDatabase -name ${SPECIES} -engine ncbi ${SPECIES}.fa
 
-# Step 2 - build the repeat model of the input reference genome
+# Step 2 - build the repeat model (putative repeats) of the input reference genome
 singularity exec ${SINGULARITY_BINDPATH}/tetools_repeat.sif RepeatModeler -engine ncbi -threads 24 -database ${SPECIES}
+
+Where ${SINGULARITY_BINDPATH} is the variable defined the location of tool folder 
 ```
+
+### Repeat Masker
+#### Raw data and Resource
+- Reference genome in FASTA format
+- Repeats from Repeat modelers in FASTA format
+- The Repeat Masking singularity container is used (see the link above)
+- PBS script (02_repeat_masker.sh) is located in the scripts folder
+```
+singularity exec ${SINGULARITY_BINDPATH}/tetools_repeat.sif RepeatMasker  -xsmall -pa 24 -gff -rmblast_dir /software/rmblast-2.11.0/bin/ -lib ${SINGULARITY_BINDPATH}/${GENOME}/consensi.fa.classified -dir ${SINGULARITY_BINDPATH}/${GENOME}/repeatmasker ${SINGULARITY_BINDPATH}/${GENOME}/${GENOME}.genome.fa
+```
+
+### Aligment
+- Reference genome in FASTA format
+- RNAseq data (i.e single- or paired-end) in FASTQ.gz format
+- Hisat2 and samtools for alignment and sorting BAM file respectively.
+- PBS script (03_hisat2.sh) is located in the scripts folder
+```
+for sample in ${SAMPLE[@]}
+do
+sampleName=`echo $sample | sed 's/\_merged*.//g'`
+
+singularity exec ${SINGULARITY_BINDPATH}/hisat2.sif hisat2 -p ${cpu} -x ${SINGULARITY_BIND}/${GENOME}/${GENOME}.genome.fa \
+       -1 ${SINGULARITY_BINDPATH}/${sample}_1.fq.gz \
+       -2 ${SINGULARITY_BINDPATH}/${sample}_2.fq.gz \
+       -S ${SINGULARITY_BIND}/${GENOME}/hisat/${sampleName}.sam \
+       --novel-splicesite-outfile ${SINGULARITY_BIND}/${GENOME}/hisat/${sampleName}.junctions \
+       --rna-strandness RF \
+       --dta \
+       -t &> ${SINGULARITY_BIND}/${GENOME}/hisat/${sampleName}.log
+
+samtools view \
+       --threads ${cpu} \
+       -b \
+       -o ${SINGULARITY_BIND}/${GENOME}/hisat/${sampleName}.bam \
+       ${SINGULARITY_BIND}/${GENOME}/hisat/${sampleName}.sam
+
+# multi thread command when running on a single machine 
+# samtools view -b -F 4 -@ 44 ${SINGULARITY_BIND}/analysis_merged/hisat/${sample}.bam > ${SINGULARITY_BIND}/analysis_merged/hisat/${sample}_mapped.bam
+
+# Resource Allocation = 4G (memory) x 20 (CPU) = 80G (memory) <- do not exceed 100G (memory), so the maximum number of cpu is 25 (4x25 =100G)
+
+samtools sort \
+      -m 4G \
+      -o ${SINGULARITY_BIND}/${GENOME}/hisat/${sampleName}_sorted_all.bam \
+      -T ${SINGULARITY_BIND}/${GENOME}/hisat/${sampleName}_temp \
+      --threads ${cpu} \
+      ${SINGULARITY_BIND}/${GENOME}/hisat/${sampleName}.bam
+
+      rm ${SINGULARITY_BIND}/${GENOME}/hisat/${sampleName}.sam
+done
+```
+
 ## Reference
