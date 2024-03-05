@@ -144,7 +144,8 @@ ${STRINGTIE} --merge -p 5 -G ${STRINGTIE_GFF_DIR}/${GENOME}/${GENOME}.gff3 -o ${
 singularity exec ${TRINITY_CONTAINER} Trinity --seqType fq --CPU 50 --max_memory 100G --min_glue 2 --min_kmer_cov 2 --path_reinforcement_distance 75 --group_pairs_distance 250 --min_contig_length 200 --full_cleanup --left ${INPUT_DIR}/${sample}_1.fq.gz --right ${INPUT_DIR}/${sample}_2.fq.gz --output ${FASTQ_DIR}/trinity
 ```
 
-### Genome annotation
+### Genome annotation 
+### BRAKER
 #### Raw data and Resource
 - Reference genome in FASTA format
 - RNAseq data in BAM format
