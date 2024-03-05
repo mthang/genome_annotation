@@ -216,8 +216,8 @@ singularity exec  ${SINGULARITY_BINDPATH}/singularity/fgenesh.sif run_fgenesh_2_
 - The existing genome annnotation file (gff3) of the genome of interest downloaded from the public repository (i.e NCBI)
 - The snap singulariy container (see link above)
 - PBS script is located in the scripts folder
-   - convert reference to snap format and run snap [01_snap_ref.s](https://github.com/mthang/genome_annotation/blob/main/scripts/05_snap/01_snap_ref.sh)
-   - convert snap output file (zff) to gff file format [02_snap_conversion](https://github.com/mthang/genome_annotation/blob/main/scripts/05_snap/02_snap_conversion.sh) 
+   - convert reference to snap format and run snap [01_snap_ref.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/05_snap/01_snap_ref.sh)
+   - convert snap output file (zff) to gff file format [02_snap_conversionh](https://github.com/mthang/genome_annotation/blob/main/scripts/05_snap/02_snap_conversion.sh). This has been implemented in the script 01_snap_ref.sh
 ```
 ASSEMBLY=${SINGULARITY_BINDPATH}/${SPECIES}/${SPECIES}.genome.fa
 
@@ -249,5 +249,10 @@ perl ${SINGULARITY_BIND}/singularity/hmm-assembler.pl ${SINGULARITY_BINDPATH}/${
 # caution : the snap output might be produced in a pbs log file
 singularity exec ${SINGULARITY_BIND}/singularity/snap-20131129.sif snap -gff ${OUTPUT_DIR}/${SPECIES}.hmm ${SINGULARITY_BINDPATH}/${SPECIES}/${SPECIES}.genome.fa > ${OUTPUT_DIR}/snap.zff
 ```
+
+### Gene Structure Annotation and Analysis Using PASA: pre Evidence Modeler
+#### Raw data and Resource
+-
+-
 
 ## Reference
