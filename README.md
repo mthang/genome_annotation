@@ -146,8 +146,10 @@ singularity exec ${TRINITY_CONTAINER} Trinity --seqType fq --CPU 50 --max_memory
 
 ### Genome annotation
 #### Raw data and Resource
-- RNAseq data in FASTQ.gz format
-- The trinity singularity container is used (see link above)
+- Reference genome in FASTA format
+- RNAseq data in BAM format
+- Homologues Sequences in FASTA format
+- The brker singularity container is used (see link above)
 - PBS script [05_braker.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/05_braker/05_braker.sh) is located in the scripts folder
 ```
 braker2.sif braker.pl --species=master_Zm-Il14H \
