@@ -40,6 +40,7 @@ Tool | URL
 -----------|-----------
 Kallisto   | [Link](https://pachterlab.github.io/kallisto/download)
 stringtie  | [Link](https://ccb.jhu.edu/software/stringtie/)
+bedops     | [Link](https://bedops.readthedocs.io/en/latest/index.html)
 
 ## Single Threaded Tool
 Tool | URL
@@ -315,5 +316,140 @@ singularity exec ${SINGULARITY_BINDPATH}/pasa_2.5.2.sif /usr/local/src/PASApipel
 ```
 
 ### Pseudogenes detection
+### Input data and Resource
+- masked reference genome in FASTA format
+- final gff3 from Evidence Modeler
+- The PseudoPipe tool is used (see link above)
 
+### Pre-pseudogenes detection
+- Step 1 [01_EVM_GFF2SEQ.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/08_pseudogenes/pre_pseudogenes/01_EVM_GFF2SEQ.sh)
+```
+GFF3=${SINGULARITY_BINDPATH}/${GENOME}/EVM/EVM.all.gff3
+
+FASTA=${SINGULARITY_BINDPATH}/${GENOME}/repeatmasker/${GENOME}.genome.fa.masked
+
+singularity exec ${SING_IMAGE_DIR}/pasa_2.5.2.sif /usr/local/src/PASApipeline/misc_utilities/gff3_file_to_proteins.pl  ${GFF3} ${FASTA} > ${SINGULARITY_BINDPATH}/${GENOME}/EVM/evm_prot.fa
+```
+- Step 2 [02_make_bed.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/08_pseudogenes/pre_pseudogenes/02_make_bed.sh)
+```
+DATA_DIR=/genome_maize/${GENOME}/EVM/
+
+OUTPUT_DIR=/genome_maize/${GENOME}/pseudogenes/EVM/exonic_regions
+
+mkdir -p ${OUTPUT_DIR}
+
+gff2bed < ${DATA_DIR}/EVM.all.gff3 > ${OUTPUT_DIR}/evm_exon.bed
+
+awk '{print $1"\t"$4"\t"$2"\t"$3}' ${OUTPUT_DIR}/evm_exon.bed | uniq > ${OUTPUT_DIR}/evm_exon_formatted.bed
+```
+- Step 3 [03_splitBed.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/08_pseudogenes/pre_pseudogenes/03_splitBed.sh)
+```
+DATA_DIR=/genome_maize/${GENOME}/pseudogenes/EVM/exonic_regions
+cd ${DATA_DIR}
+
+input=${DATA_DIR}/evm_exon_formatted.bed
+
+for chr in `cut -f 1 $input | sort | uniq`;
+do
+        echo $chr
+        grep -w $chr $input > $chr.bed
+        ln -s $chr.bed ${chr}_exLocs
+done
+```
+- Step 4 [04_split_chr.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/08_pseudogenes/pre_pseudogenes/04_split_chr.sh)
+```
+DATA_DIR=/genome_maize/${GENOME}/pseudogenes/EVM/exonic_regions
+# GENOME
+SPECIES=/genome_maize/${GENOME}/${GENOME}.genome.fa
+# Genome from repeat masking
+SPECIES_RM=/genome_maize/${GENOME}/repeatmasker/${GENOME}.genome.fa.masked
+OUTPUT_DIR=/genome_maize/${GENOME}/pseudogenes/EVM/chr
+
+mkdir -p ${OUTPUT_DIR}
+
+cd ${OUTPUT_DIR}
+
+cut -f1 ${DATA_DIR}/evm_exon.bed | sort | uniq > ${OUTPUT_DIR}/chr_id.txt
+
+FASOMERECORDS=/software/faSomeRecords
+
+while IFS="" read -r chr || [ -n "$chr" ]
+do
+    echo ${chr} > tmp.txt
+    ${FASOMERECORDS} ${SPECIES} tmp.txt ${chr}.fa
+    ${FASOMERECORDS} ${SPECIES_RM} tmp.txt ${chr}_rm.fa
+    rm tmp.txt
+done < chr_id.txt
+```
+- Step 5 [05_create_folder.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/08_pseudogenes/pre_pseudogenes/05_create_folder.sh)
+```
+DATA_DIR=/genome_maize/${GENOME}/pseudogenes/EVM
+
+CHR_DIR=${DATA_DIR}/chr
+EXON_DIR=${DATA_DIR}/exonic_regions
+
+PROTEIN=/genome_maize/${GENOME}/EVM/evm_prot.fa
+
+cd ${DATA_DIR}
+
+while IFS="" read -r chr || [ -n "$chr" ]
+do
+    echo ${chr}
+    ls ${CHR_DIR}/${chr}.fa
+    ls ${CHR_DIR}/${chr}_rm.fa
+    ls ${EXON_DIR}/${chr}.bed
+    ls ${PROTEIN}
+
+    mkdir -p ${chr}/input/pep
+    mkdir -p ${chr}/input/dna
+    mkdir -p ${chr}/input/mysql
+
+        cp ${CHR_DIR}/${chr}.fa ${chr}/input/dna/
+    cp ${CHR_DIR}/${chr}_rm.fa ${chr}/input/dna/
+    cp ${PROTEIN} ${chr}/input/pep/pep.fa
+    cp ${EXON_DIR}/${chr}.bed ${chr}/input/mysql/${chr}_exLocs
+done < ${DATA_DIR}/chr/chr_id.txt
+```
+### Run Pseudogenes detection
+### Input and Resource
+- Input data will be available after running the scripts in pre-presudogenes detection step
+- The pseudopipe scripts are not PBS compatible
+- Step 1 [01_run_ppipe.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/08_pseudogenes/run_pseudogenes/01_run_ppipe.sh)
+```
+GENOME="use genome of interest"
+
+## Copy all folders prepared in pre_pseudogenes step to "CHR_DIR" folder below on the compute node
+CHR_DIR=/data/maize/${GENOME}/pseudogenes/EVM
+
+while IFS="" read -r chr || [ -n "$chr" ]
+do
+    echo ${chr}
+    /software/pgenes/pseudopipe/bin/pseudopipe.sh ${CHR_DIR}/${chr}/output \
+    ${CHR_DIR}/${chr}/input/dna/${chr}.fa \
+    ${CHR_DIR}/${chr}/input/dna/%s.fa \
+    ${CHR_DIR}/${chr}/input/pep/pep.fa \
+    ${CHR_DIR}/${chr}/input/mysql/%s_exLocs 0 &
+done < ${CHR_DIR}/chr/chr_id.txt
+```
+- Step 2 [02_part2.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/08_pseudogenes/run_pseudogenes/02_part2.sh)
+```
+CHR_DIR=/data/maize/${GENOME}/pseudogenes/EVM
+
+while IFS="" read -r chr || [ -n "$chr" ]
+do
+    echo ${chr}
+    ls ${CHR_DIR}/${chr}/output/pgenes/minus
+    cd ${CHR_DIR}/${chr}/output/pgenes/minus
+    source setenvPipelineVars
+    python2 /data/software/pgenes/pseudopipe/core/runScripts.py ${chr}
+    ls ${CHR_DIR}/${chr}/output/pgenes/plus
+    cd ${CHR_DIR}/${chr}/output/pgenes/plus
+    source setenvPipelineVars
+    python2 /data/software/pgenes/pseudopipe/core/runScripts.py ${chr}
+
+    /data/software/pgenes/pseudopipe/ext/genPgeneResult.sh ${CHR_DIR}/${chr}/output ${CHR_DIR}/${chr}/output/pgenes/output_pgenes.txt
+    /data/software/pgenes/pseudopipe/ext/genFullAln.sh ${CHR_DIR}/${chr}/output ${CHR_DIR}/${chr}/output/pgenes/output_pgenes.align.gz
+done < ${CHR_DIR}/chr/chr_id.txt
+```
+### Post-pseudogenes detection
 ## Reference
