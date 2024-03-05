@@ -252,7 +252,66 @@ singularity exec ${SINGULARITY_BIND}/singularity/snap-20131129.sif snap -gff ${O
 
 ### Gene Structure Annotation and Analysis Using PASA: pre Evidence Modeler
 #### Raw data and Resource
--
--
+- de novo assembled transcripts from trinity in FASTA format
+- a config file (alignAssembly.config) from PASA program which can be found in the PASA singularity container
+- The PASA singularity container (see link above)
+- PBS script [01_run_PASA.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/07_PASA/01_run_PASA.sh) is located in the scripts folder
+```
+GENOME=Zm-Il14H
+
+mkdir ${SINGULARITY_BINDPATH}/pasa_maize/${GENOME}
+
+singularity exec ${SINGULARITY_BINDPATH}/pasa_2.5.2.sif cp -r /usr/local/src/PASApipeline/sample_data/ ${SINGULARITY_BINDPATH}/pasa_maize/${GENOME}/
+
+PATH2SQLITE="/scratch/kw68/wt5249/temp/maize/${GENOME}.sqlite"
+
+# replace the default path defined in the alignAssembly.config with PATH2SQLITE
+sed -i -r "s#^(DATABASE=).*#\1$PATH2SQLITE#" ${SINGULARITY_BINDPATH}/pasa_maize/${GENOME}/sample_data/mysql.confs/alignAssembly.config
+
+# Merged RNASeq
+
+cp ${SINGULARITY_BIND}/data/trinity/maize/trinity.Trinity.fasta ${SINGULARITY_BINDPATH}/pasa_maize/${GENOME}/sample_data/Trinity.fasta
+cp ${SINGULARITY_BIND}/genome_maize/${GENOME}/${GENOME}.genome.fa ${SINGULARITY_BINDPATH}/pasa_maize/${GENOME}/sample_data/
+
+# Change directory
+cd ${SINGULARITY_BINDPATH}/pasa_maize/${GENOME}/sample_data/
+
+singularity exec ${SINGULARITY_BINDPATH}/pasa_2.5.2.sif /usr/local/src/PASApipeline/misc_utilities/accession_extractor.pl < ${SINGULARITY_BINDPATH}/pasa_maize/${GENOME}/sample_data/Trinity.fasta > ${SINGULARITY_BINDPATH}/pasa_maize/${GENOME}/sample_data/tdn.accs
+
+singularity exec ${SINGULARITY_BINDPATH}/pasa_2.5.2.sif /usr/local/src/PASApipeline/Launch_PASA_pipeline.pl -c ${SINGULARITY_BINDPATH}/pasa_maize/${GENOME}/sample_data/mysql.confs/alignAssembly.config --trans_gtf ${SINGULARITY_BIND}/genome_maize/${GENOME}/stringtie/merged_stringtie.gtf -C -R --CPU 40 --ALIGNER gmap -g ${SINGULARITY_BINDPATH}/pasa_maize/${GENOME}/sample_data/${GENOME}.genome.fa -t ${SINGULARITY_BINDPATH}/pasa_maize/${GENOME}/sample_data/Trinity.fasta --TDN ${SINGULARITY_BINDPATH}/pasa_maize/${GENOME}/sample_data/tdn.accs
+```
+
+###  Evidence Modeler
+#### Raw data and Resource
+- A list of genome annotation files (gff3) from Braker (i.e augustus and genmark), Fgenesh, SNAP and PASA
+- The evidence modeler singularity container is used (see link above)
+- PBS scripts [06_EvidenceModeler](https://github.com/mthang/genome_annotation/tree/main/scripts/06_EvidenceModeler) is located in the scripts folder
+  - scripts to format input files before running Evidence Modeler
+  - [01_convert_gtf.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/06_EvidenceModeler/01_convert_gtf.sh) is to convert genmark gtf to gff3 format and convert augustus gff3 file to Evidence Modeler gff3 format
+  - [02_sort_gff.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/06_EvidenceModeler/02_sort_gff.sh) is to sort the entry in the gff3 files.
+  - [03_merged.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/06_EvidenceModeler/03_merged.sh) is to merge gff3 from genmark, augustus, Fgenesh and SNAP into a single master gff3 file.
+  - [04_prepare_evm.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/06_EvidenceModeler/04_prepare_evm.sh) is to prepare the executable command to run Evidence Modeler in parallel.
+  - [05_run_evm.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/06_EvidenceModeler/05_run_evm.sh) is used to run evidence modeler program to produce consensus gene models in gff3 format.
+  - [06_combine_evm.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/06_EvidenceModeler/06_combine_evm.sh) combines each individual gff3 file into a single gff3 file.
+
+### Gene Structure Annotation and Analysis Using PASA: post Evidence Modeler (add UTR)
+#### Raw data and Resource
+- a final gff3 file from Evidence Modeler
+- de novo assembled transcripts from Trinity in FASTA format
+- the sqlite file produced in the first PASA run
+- a config file (annotCompare.config) from PASA program which can be found in the PASA singularity container
+- The PASA singularity container (see link above)
+- PBS script [02_run_PASA_utr.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/07_PASA/02_run_PASA_utr.sh) is located in the scripts folder
+```
+PATH2SQLITE="/scratch/kw68/wt5249/temp/maize/${GENOME}.sqlite"
+
+sed -i -r "s#^(DATABASE=).*#\1$PATH2SQLITE#" /scratch/kw68/wt5249/${PASA_DIR}/${GENOME}/sample_data/mysql.confs/annotCompare.config
+
+cd /scratch/kw68/wt5249/${PASA_DIR}/${GENOME}/sample_data
+
+singularity exec ${SINGULARITY_BINDPATH}/pasa_2.5.2.sif /usr/local/src/PASApipeline/scripts/Load_Current_Gene_Annotations.dbi -c ${SINGULARITY_BINDPATH}/${PASA_DIR}/${GENOME}/sample_data/mysql.confs/alignAssembly.config -g ${SINGULARITY_BINDPATH}/${PASA_DIR}/${GENOME}/sample_data/${GENOME}.genome.fa -P ${SINGULARITY_BIND}/${GENOME}/EVM/EVM.all.gff3
+
+singularity exec ${SINGULARITY_BINDPATH}/pasa_2.5.2.sif /usr/local/src/PASApipeline/Launch_PASA_pipeline.pl -c ${SINGULARITY_BINDPATH}/${PASA_DIR}/${GENOME}/sample_data/mysql.confs/annotCompare.config --CPU 2 --TRANSDECODER -A -g ${SINGULARITY_BINDPATH}/${PASA_DIR}/${GENOME}/sample_data/${GENOME}.genome.fa -t ${SINGULARITY_BINDPATH}/${PASA_DIR}/${GENOME}/sample_data/Trinity.fasta
+```
 
 ## Reference
