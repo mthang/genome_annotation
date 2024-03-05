@@ -60,7 +60,7 @@ This Genome Annotation pipeline is designed to annotate plant genomes and improv
 #### Raw data and Resource
 - Reference genome / de novo assembled genome in FASTA format
 - The Repeat Modeler singularity container is used (see the link above)
-- PBS script (01_repeatmodeler.sh) is located in the scripts folder
+- PBS script [01_repeatmodeler.sh](https://github.com/mthang/genome_annotation/tree/main/scripts/01_repeat_modeler) is located in the scripts folder
 ```
 # Step 1 - index reference genome fasta file 
 singularity exec ${SINGULARITY_BINDPATH}/tetools_repeat.sif BuildDatabase -name ${SPECIES} -engine ncbi ${SPECIES}.fa
