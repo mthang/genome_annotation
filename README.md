@@ -1,9 +1,9 @@
 # Genome Annotation Workflow
-1) repeat modeler
-2) repeat masking
-3) alignment
-4) de novo transcriptome assembly
-5) genome annotation
+1) Repeat modeler
+2) Repeat masking
+3) Alignment
+4) De novo transcriptome assembly
+5) Genome annotation
    1. Braker
    2. Snap
    3. Fgenesh
@@ -47,12 +47,26 @@ PseudoPipe | [Link](http://pseudogene.org/pseudopipe/)
 
 ## Homologue Database
 Five non-redundant databases are downloaded from [Uniprot](https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/) 
-1) Brachypodium distachyon
-2) Oryza sativa subsp. japonica
-3) Setaria italica
-4) Sorghum bicolor
-5) Zea mays
+- Brachypodium distachyon-
+- Oryza sativa subsp. japonica
+- Setaria italica
+- Sorghum bicolor
+- Zea mays
 
+## Genome Annotation Pipeline
+This Genome Annotation pipeline is designed to annotate plant genomes and improve the newly annotated genomes with transcriptome dataset. Genome Annotation pipeline can be summarized in few steps such as repeat detection, gene model prediction, obtain consensus gene model, add utr to the gene model (optional) and retain gene model with gene expression (if transcriptome data is available). Eggnog-mapper is used to perform the functional annotation of the gene model produced in the Genome Annotation Tool, and Orthofinder takes the protein sequences to perform the pangenome analysis.
 
-## main steps
+### Repeat Modeler
+#### Raw data and Resource
+- Reference genome / de novo assembled genome in FASTA format
+- The Repeat Modeler tool is used (see the link above)
+- The PBS script is located in the scripts folder
 
+```
+# Step 1 - index reference genome fasta file 
+singularity exec ${SINGULARITY_BINDPATH}/tetools_repeat.sif BuildDatabase -name ${SPECIES} -engine ncbi ${SPECIES}.fa
+
+# Step 2 - build the repeat model of the input reference genome
+singularity exec ${SINGULARITY_BINDPATH}/tetools_repeat.sif RepeatModeler -engine ncbi -threads 24 -database ${SPECIES}
+```
+## Reference
