@@ -64,7 +64,7 @@ The raw data and reference genome download scripts are available [here](https://
 This Genome Annotation pipeline is designed to annotate plant genomes and improve the newly annotated genomes with transcriptome dataset. Genome Annotation pipeline can be summarized in few steps such as repeat detection, gene model prediction, obtain consensus gene model, add utr to the gene model (optional) and retain gene model with gene expression (if transcriptome data is available). Eggnog-mapper is used to perform the functional annotation of the gene model produced in the Genome Annotation Tool, and Orthofinder takes the protein sequences to perform the pangenome analysis.
 
 ### Repeat Modeler
-Repeat Modeler is a de novo transposable element (TE) family identification and modeling package.see [link](doc:linking-to-pages#additional-information)
+Repeat Modeler is a de novo transposable element (TE) family identification and modeling package.see [link](doc:linking-to-pages#Additional-Information)
 #### Input data and Resource
 - Reference genome / de novo assembled genome in FASTA format
 - The Repeat Modeler singularity container is used (see the link above)
@@ -674,6 +674,6 @@ singularity exec ${SINGULARITY_BIND}/singularity/OrthoFinder-2.5.4.sif orthofind
    - Preferred_Name
    - Protein_Sequence
 
-## Additional Information
+##Additional Information
 [1]: [Repeat Modeler](https://www.repeatmasker.org/RepeatModeler/) "Repeat Modeler"
 [2]: [PASA](https://github.com/PASApipeline/PASApipeline/blob/master/docs/index.asciidoc) "PASA" 
