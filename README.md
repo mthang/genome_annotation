@@ -68,7 +68,7 @@ Repeat Modeler is a de novo transposable element (TE) family identification and 
 #### Input data and Resource
 - Reference genome / de novo assembled genome in FASTA format
 - The Repeat Modeler singularity container is used (see the link above)
-- PBS script [01_repeatmodeler.sh](https://github.com/mthang/genome_annotation/tree/main/scripts/01_repeat_modeler) is located in the scripts folder
+- PBS script [01_repeatmodeler.sh](https://github.com/mthang/genome_annotation/tree/main/scripts/01_repeat_modeler) is available in the scripts folder
 ```
 # Step 1 - index reference genome fasta file 
 singularity exec ${SINGULARITY_BINDPATH}/tetools_repeat.sif BuildDatabase -name ${SPECIES} -engine ncbi ${SPECIES}.fa
@@ -84,19 +84,19 @@ RepeatMasker is a program that screens DNA sequences for interspersed repeats an
 #### Input data and Resource
 - Reference genome in FASTA format
 - Repeats from Repeat modelers in FASTA format
-- The Repeat Masking singularity container is used (see the link above)
-- PBS script [02_repeat_masker.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/02_repeat_masker/02_repeat_masker.sh) is located in the scripts folder
+- The Repeat Masking singularity container is used. see [link](#Singularity-Image) above
+- PBS script [02_repeat_masker.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/02_repeat_masker/02_repeat_masker.sh) is available in the scripts folder
 ```
 singularity exec ${SINGULARITY_BINDPATH}/tetools_repeat.sif RepeatMasker  -xsmall -pa 24 -gff -rmblast_dir /software/rmblast-2.11.0/bin/ -lib ${SINGULARITY_BINDPATH}/${GENOME}/consensi.fa.classified -dir ${SINGULARITY_BINDPATH}/${GENOME}/repeatmasker ${SINGULARITY_BINDPATH}/${GENOME}/${GENOME}.genome.fa
 ```
 
 ### Hisat2 - alignment tool
-Hisat2 is graph-based alignment of next generation sequencing reads to a population of genomes.see [Link](#Additional-Information) for additional informatio.
+Hisat2 is graph-based alignment of next generation sequencing reads to a population of genomes.see [Link](#Additional-Information) for additional information.
 #### Input data and Resource
 - Reference genome in FASTA format
 - RNAseq data (i.e single- or paired-end) in FASTQ.gz format
 - Hisat2 and samtools for alignment and sorting BAM file respectively.
-- PBS script [03_hisat2.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/03_hisat/03_hisat2.sh) is located in the scripts folder
+- PBS script [03_hisat2.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/03_hisat/03_hisat2.sh) is available in the scripts folder
 ```
 for sample in ${SAMPLE[@]}
 do
@@ -133,11 +133,12 @@ samtools sort \
 done
 ```
 ###  Merge BAM with GFF file
+StringTie is a fast and highly efficient assembler of RNA-Seq alignments into potential transcripts. see [Link](#Additional-Information) for additional information.
 #### Input data and Resource
 - Alignment file in BAM format
 - The existing genome anontation file (GFF) of the genome of interest
 - The installation of stringtie on your computer is required
-- PBS script [04_stringtie.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/04_stringtie/04_stringtie.sh) is located in the scripts folder
+- PBS script [04_stringtie.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/04_stringtie/04_stringtie.sh) is available in the scripts folder
 ```
 ${STRINGTIE} ${HISAT_BAM} -l merged -p 5 -G ${STRINGTIE_GFF_DIR}/${GENOME}/${GENOME}.gff3 -o ${STRINGTIE_GFF_DIR}/${GENOME}/stringtie/merged_stringtie.gtf
 
@@ -145,22 +146,24 @@ ${STRINGTIE} --merge -p 5 -G ${STRINGTIE_GFF_DIR}/${GENOME}/${GENOME}.gff3 -o ${
 ```
 
 ### De novo transcriptome assembly
+Trinity assembles transcript sequences from Illumina RNA-Seq data. see [Link](#Additional-Information) for additional information.
 #### Input data and Resource
 - RNAseq data in FASTQ.gz format
 - The trinity singularity container is used (see link above)
-- PBS script [04_trinity.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/04_trinity/04_trinity.sh) is located in the scripts folder
+- PBS script [04_trinity.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/04_trinity/04_trinity.sh) is available in the scripts folder
 ```
 singularity exec ${TRINITY_CONTAINER} Trinity --seqType fq --CPU 50 --max_memory 100G --min_glue 2 --min_kmer_cov 2 --path_reinforcement_distance 75 --group_pairs_distance 250 --min_contig_length 200 --full_cleanup --left ${INPUT_DIR}/${sample}_1.fq.gz --right ${INPUT_DIR}/${sample}_2.fq.gz --output ${FASTQ_DIR}/trinity
 ```
 
 ### Genome annotation 
 ### BRAKER
+BRAKER is a pipeline for fully automated prediction of protein coding gene structures with GeneMark-ES/ET/EP/ETP and AUGUSTUS in novel eukaryotic genomes. see [Link](#Additional-Information) for additional information.
 #### Input data and Resource
 - Reference genome in FASTA format
 - RNAseq data in BAM format
 - Homologues Sequences in FASTA format
 - The braker singularity container is used (see link above)
-- PBS script [05_braker.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/05_braker/05_braker.sh) is located in the scripts folder
+- PBS script [05_braker.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/05_braker/05_braker.sh) is available in the scripts folder
 ```
 braker2.sif braker.pl --species=master_Zm-Il14H \
                                            --grass \
@@ -173,6 +176,7 @@ braker2.sif braker.pl --species=master_Zm-Il14H \
 ```
 
 ### Fgenesh
+Fgenesh++ is a pipeline for automatic prediction of genes in eukaryotic genomes based on Softberry gene finding software. see [Link](#Additional-Information) for additional information.
 #### Input data and Resource
 - Repeat masked reference genome in FASTA format
 - a fgenesh [config file](https://github.com/mthang/genome_annotation/blob/main/scripts/05_fgenesh/plant.cfg) which defines path to the reference files (i.e GENE_PARAM, PIPE_PARAM, PROTEIN_DB and BLASTP) and tools.
@@ -181,7 +185,7 @@ braker2.sif braker.pl --species=master_Zm-Il14H \
    - PROTEIN_DB - protein database
    - BLASTP - path to executable blastp program
 - The fgenesh singulartiy image 
-- PBS script [05_fgenesh.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/05_fgenesh/05_fgenesh.sh) is located in the scripts folder
+- PBS script [05_fgenesh.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/05_fgenesh/05_fgenesh.sh) is available in the scripts folder
 ```
 cpu=20
 GENOME=GenomeOfInterest
@@ -221,10 +225,11 @@ singularity exec  ${SINGULARITY_BINDPATH}/singularity/fgenesh.sif run_fgenesh_2_
 ```
 
 ### SNAP
+SNAP is a general purpose gene finding program suitable for both eukaryotic and prokaryotic genomes.  see [Link](#Additional-Information) for additional information.
 #### Input data and Resource
 - The existing genome annnotation file (gff3) of the genome of interest downloaded from the public repository (i.e NCBI)
 - The snap singulariy container (see link above)
-- PBS script is located in the scripts folder
+- PBS script [05_snap](https://github.com/mthang/genome_annotation/tree/main/scripts/05_snap) is available in the scripts folder
    - convert reference to snap format and run snap [01_snap_ref.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/05_snap/01_snap_ref.sh)
    - convert snap output file (zff) to gff file format [02_snap_conversionh](https://github.com/mthang/genome_annotation/blob/main/scripts/05_snap/02_snap_conversion.sh). This has been implemented in the script 01_snap_ref.sh
 ```
@@ -260,11 +265,12 @@ singularity exec ${SINGULARITY_BIND}/singularity/snap-20131129.sif snap -gff ${O
 ```
 
 ### Gene Structure Annotation and Analysis Using PASA: pre Evidence Modeler
+PASA, acronym for Program to Assemble Spliced Alignments, is a eukaryotic genome annotation tool that exploits spliced alignments of expressed transcript sequences to automatically model gene structures, and to maintain gene structure annotation consistent with the most recently available experimental sequence data. see [Link](#Additional-Information) for additional information.
 #### Input data and Resource
 - de novo assembled transcripts from trinity in FASTA format
 - a config file (alignAssembly.config) from PASA program which can be found in the PASA singularity container
 - The PASA singularity container (see link above)
-- PBS script [01_run_PASA.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/07_PASA/01_run_PASA.sh) is located in the scripts folder
+- PBS script [01_run_PASA.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/07_PASA/01_run_PASA.sh) is available in the scripts folder
 ```
 GENOME=Zm-Il14H
 
@@ -680,4 +686,10 @@ singularity exec ${SINGULARITY_BIND}/singularity/OrthoFinder-2.5.4.sif orthofind
 - [Repeat Modeler](https://www.repeatmasker.org/RepeatModeler/)
 - [Repeat Masker](https://www.repeatmasker.org/)
 - [Hisat2](https://daehwankimlab.github.io/hisat2/manual/)
+- [Samtools](https://www.htslib.org/)
+- [Stringtie](https://ccb.jhu.edu/software/stringtie/index.shtml?t=manual)
+- [Trinity](https://github.com/trinityrnaseq/trinityrnaseq/wiki)
+- [BRAKER](https://github.com/Gaius-Augustus/BRAKER)
+- [FGENESH](http://www.softberry.com/berry.phtml?topic=fgenesh_plus_plus&group=help&subgroup=pipelines)
+- [SNAP](https://github.com/KorfLab/SNAP)
 - [PASA](https://github.com/PASApipeline/PASApipeline/blob/master/docs/index.asciidoc) 
