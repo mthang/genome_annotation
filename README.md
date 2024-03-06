@@ -705,3 +705,4 @@ singularity exec ${SINGULARITY_BIND}/singularity/OrthoFinder-2.5.4.sif orthofind
 - [Orthofinder](https://github.com/davidemms/OrthoFinder)
 - [eggNogMapper](https://github.com/eggnogdb/eggnog-mapper)
 - [Mikado](https://mikado.readthedocs.io/en/stable/Introduction/)
+- [Seqkit](https://bioinf.shenwei.me/seqkit/)
