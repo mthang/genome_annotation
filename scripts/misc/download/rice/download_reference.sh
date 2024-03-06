@@ -1,21 +1,19 @@
 #!/bin/bash
 
-URL=https://download.maizegdb.org
-#https://download.maizegdb.org/Zm-B73-REFERENCE-NAM-5.0/Zm-B73-REFERENCE-NAM-5.0_Zm00001eb.1.gff3.gz
-#https://stackoverflow.com/questions/42543468/download-file-from-https-url-with-authentication-using-wildcards
-#https://download.maizegdb.org/
-#https://download.maizegdb.org/Pan-genes/
+WORKDIR=/path/to/genome/folder
 
-while IFS="" read -r line || [ -n "$line" ]
+
+while IFS="" read -r genome || [ -n "$genome" ]
 do
-    echo $line
-    folder=`basename $line .fa.gz`
-    species=`echo $folder | sed 's/-REFERENCE-NAM-[15].0//g'`
-    echo -e "$folder $species"
-    mkdir $species
-    curl -o ${species}/$species.fa.gz "${URL}/${folder}/${line}"
-    #wget -O ${species}/${species}.gff3.gz --recursive --level=1 --no-parent --no-directories --accept ${folder}_*.1.gff3.gz ${URL}/${folder}/
-    wget --recursive --level=1 --no-parent --no-directories --accept ${folder}_*.1.gff3.gz ${URL}/${folder}/
-    mv *.gff3.gz ${species}/${species}.gff3.gz
-    gunzip ${species}/*.gz
-done < maize.txt
+    echo $genome
+    #mkdir $genome
+    cd $genome
+   # wget -O ${genome}.genome.tar.gz https://ricerc.sicau.edu.cn/RiceRC/download/downloadFile?name=${genome}.genome.tar.gz
+   # wget -O ${genome}.IGDBv1.Allset.gff.tar.gz https://ricerc.sicau.edu.cn/RiceRC/download/downloadFile?name=${genome}.IGDBv1.Allset.gff.tar.gz
+   # tar -xzvf ${genome}.genome.tar.gz
+   # mv ${genome}.genome ${genome}.genome.fa
+    tar -xzvf ${genome}.IGDBv1.Allset.gff.tar.gz
+    mv ${genome}/*.gff .
+    rm -rf ${genome}/
+    cd ..
+done < RiceGenome
