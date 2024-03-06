@@ -17,7 +17,6 @@
 13) GFF3 statistics
 14) Functional Annotation
 15) Pangenome analysis
-16) https://github.com/PASApipeline/PASApipeline/blob/master/docs/index.asciidoc
 
 ## Singularity Image
 Tool  | Singularity Container | Download
@@ -673,4 +672,6 @@ singularity exec ${SINGULARITY_BIND}/singularity/OrthoFinder-2.5.4.sif orthofind
    - Description
    - Preferred_Name
    - Protein_Sequence
-## Reference
+
+## Additional Information
+- PASA [doc](https://github.com/PASApipeline/PASApipeline/blob/master/docs/index.asciidoc) 
