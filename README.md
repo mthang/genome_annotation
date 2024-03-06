@@ -20,7 +20,7 @@
 16) https://github.com/PASApipeline/PASApipeline/blob/master/docs/index.asciidoc
 
 ## Singularity Image
-Tool  | Singularity Container | URL
+Tool  | Singularity Container | Download
 -----------------|--------------------|------------
 Repeat Modeler   | tetools_repeat.sif | [Github](https://github.com/Dfam-consortium/TETools)
 Repeat Masker    | tetools_repeat.sif | [Github](https://github.com/Dfam-consortium/TETools)
@@ -38,11 +38,11 @@ OrthoFinder      | OrthoFinder-2.5.4.sif   | [Link](https://quay.io/repository/b
 ## Binary Tool
 Tool | URL
 -----------|-----------
-Kallisto   | [download](https://pachterlab.github.io/kallisto/download)
-stringtie  | [download](https://ccb.jhu.edu/software/stringtie/)
-bedops     | [download](https://bedops.readthedocs.io/en/latest/index.html)
-faSomeRecords | [download](https://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/faSomeRecords)
-seqkit | [download](https://bioinf.shenwei.me/seqkit/download/)
+Kallisto   | [Link](https://pachterlab.github.io/kallisto/download)
+stringtie  | [Link](https://ccb.jhu.edu/software/stringtie/)
+bedops     | [Link](https://bedops.readthedocs.io/en/latest/index.html)
+faSomeRecords | [Link](https://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/faSomeRecords)
+seqkit | [Link](https://bioinf.shenwei.me/seqkit/download/)
 
 ## Single Threaded Tool
 Tool | URL
