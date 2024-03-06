@@ -57,6 +57,10 @@ Five non-redundant databases are downloaded from [Uniprot](https://ftp.uniprot.o
 - Sorghum bicolor
 - Zea mays
 
+## Data
+### Raw data and Reference genome
+The raw data and reference genome download scripts are available [here](https://github.com/mthang/genome_annotation/tree/main/scripts/misc/download)
+
 ## Genome Annotation Pipeline
 This Genome Annotation pipeline is designed to annotate plant genomes and improve the newly annotated genomes with transcriptome dataset. Genome Annotation pipeline can be summarized in few steps such as repeat detection, gene model prediction, obtain consensus gene model, add utr to the gene model (optional) and retain gene model with gene expression (if transcriptome data is available). Eggnog-mapper is used to perform the functional annotation of the gene model produced in the Genome Annotation Tool, and Orthofinder takes the protein sequences to perform the pangenome analysis.
 
