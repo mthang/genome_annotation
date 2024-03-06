@@ -67,7 +67,7 @@ This Genome Annotation pipeline is designed to annotate plant genomes and improv
 Repeat Modeler is a de novo transposable element (TE) family identification and modeling package.see [link](#Additional-Information) for additional information.
 #### Input data and Resource
 - Reference genome / de novo assembled genome in FASTA format
-- The Repeat Modeler singularity container is used (see the link above)
+- The Repeat Modeler singularity container is used. see [Singularity Image](#Singularity-Image) above
 - PBS script [01_repeatmodeler.sh](https://github.com/mthang/genome_annotation/tree/main/scripts/01_repeat_modeler) is available in the scripts folder
 ```
 # Step 1 - index reference genome fasta file 
@@ -84,7 +84,7 @@ RepeatMasker is a program that screens DNA sequences for interspersed repeats an
 #### Input data and Resource
 - Reference genome in FASTA format
 - Repeats from Repeat modelers in FASTA format
-- The Repeat Masking singularity container is used. see [link](#Singularity-Image) above
+- The Repeat Masking singularity container is used. see [Singularity Image](#Singularity-Image) above
 - PBS script [02_repeat_masker.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/02_repeat_masker/02_repeat_masker.sh) is available in the scripts folder
 ```
 singularity exec ${SINGULARITY_BINDPATH}/tetools_repeat.sif RepeatMasker  -xsmall -pa 24 -gff -rmblast_dir /software/rmblast-2.11.0/bin/ -lib ${SINGULARITY_BINDPATH}/${GENOME}/consensi.fa.classified -dir ${SINGULARITY_BINDPATH}/${GENOME}/repeatmasker ${SINGULARITY_BINDPATH}/${GENOME}/${GENOME}.genome.fa
@@ -95,7 +95,7 @@ Hisat2 is graph-based alignment of next generation sequencing reads to a populat
 #### Input data and Resource
 - Reference genome in FASTA format
 - RNAseq data (i.e single- or paired-end) in FASTQ.gz format
-- Hisat2 and samtools for alignment and sorting BAM file respectively.
+- Hisat2 and samtools for alignment and sorting BAM file respectively. see [Singularity Image](#Singularity-Image) above
 - PBS script [03_hisat2.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/03_hisat/03_hisat2.sh) is available in the scripts folder
 ```
 for sample in ${SAMPLE[@]}
@@ -137,7 +137,7 @@ StringTie is a fast and highly efficient assembler of RNA-Seq alignments into po
 #### Input data and Resource
 - Alignment file in BAM format
 - The existing genome anontation file (GFF) of the genome of interest
-- The installation of stringtie on your computer is required
+- The installation of stringtie on your computer is required. see [Singularity Image](#Singularity-Image) above
 - PBS script [04_stringtie.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/04_stringtie/04_stringtie.sh) is available in the scripts folder
 ```
 ${STRINGTIE} ${HISAT_BAM} -l merged -p 5 -G ${STRINGTIE_GFF_DIR}/${GENOME}/${GENOME}.gff3 -o ${STRINGTIE_GFF_DIR}/${GENOME}/stringtie/merged_stringtie.gtf
@@ -228,7 +228,7 @@ singularity exec  ${SINGULARITY_BINDPATH}/singularity/fgenesh.sif run_fgenesh_2_
 SNAP is a general purpose gene finding program suitable for both eukaryotic and prokaryotic genomes.  see [Link](#Additional-Information) for additional information.
 #### Input data and Resource
 - The existing genome annnotation file (gff3) of the genome of interest downloaded from the public repository (i.e NCBI)
-- The snap singulariy container (see link above)
+- The snap singulariy container is used. see [Singularity Image](#Singularity-Image) above
 - PBS script [05_snap](https://github.com/mthang/genome_annotation/tree/main/scripts/05_snap) is available in the scripts folder
    - convert reference to snap format and run snap [01_snap_ref.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/05_snap/01_snap_ref.sh)
    - convert snap output file (zff) to gff file format [02_snap_conversionh](https://github.com/mthang/genome_annotation/blob/main/scripts/05_snap/02_snap_conversion.sh). This has been implemented in the script 01_snap_ref.sh
@@ -269,7 +269,7 @@ PASA, acronym for Program to Assemble Spliced Alignments, is a eukaryotic genome
 #### Input data and Resource
 - de novo assembled transcripts from trinity in FASTA format
 - a config file (alignAssembly.config) from PASA program which can be found in the PASA singularity container
-- The PASA singularity container (see link above)
+- The PASA singularity container is used. see [Singularity Image](#Singularity-Image) above
 - PBS script [01_run_PASA.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/07_PASA/01_run_PASA.sh) is available in the scripts folder
 ```
 GENOME=Zm-Il14H
@@ -297,10 +297,11 @@ singularity exec ${SINGULARITY_BINDPATH}/pasa_2.5.2.sif /usr/local/src/PASApipel
 ```
 
 ###  Evidence Modeler
+The EVidenceModeler (aka EVM) software combines ab intio gene predictions and protein and transcript alignments into weighted consensus gene structures. EVM provides a flexible and intuitive framework for combining diverse evidence types into a single automated gene structure annotation system. see [Link](#Additional-Information) for additional information.
 #### Input data and Resource
 - A list of genome annotation files (gff3) from Braker (i.e augustus and genmark), Fgenesh, SNAP and PASA
-- The evidence modeler singularity container is used (see link above)
-- PBS scripts are located in [06_EvidenceModeler](https://github.com/mthang/genome_annotation/tree/main/scripts/06_EvidenceModeler) folder.
+- The evidence modeler singularity container is used. see [Singularity Image](#Singularity-Image) above
+- PBS script [06_EvidenceModeler](https://github.com/mthang/genome_annotation/tree/main/scripts/06_EvidenceModeler) is available in the scripts folder.
   - scripts to format input files before running Evidence Modeler
   - [01_convert_gtf.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/06_EvidenceModeler/01_convert_gtf.sh) is to convert genmark gtf to gff3 format and convert augustus gff3 file to Evidence Modeler gff3 format
   - [02_sort_gff.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/06_EvidenceModeler/02_sort_gff.sh) is to sort the entry in the gff3 files.
@@ -315,7 +316,7 @@ singularity exec ${SINGULARITY_BINDPATH}/pasa_2.5.2.sif /usr/local/src/PASApipel
 - de novo assembled transcripts from Trinity in FASTA format
 - the sqlite file produced in the first PASA run
 - a config file (annotCompare.config) from PASA program which can be found in the PASA singularity container
-- The PASA singularity container (see link above)
+- The PASA singularity container is used. see [Singularity Image](#Singularity-Image) above
 - PBS script [02_run_PASA_utr.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/07_PASA/02_run_PASA_utr.sh) is located in [07_PASA](https://github.com/mthang/genome_annotation/tree/main/scripts/07_PASA) folder.
 ```
 PATH2SQLITE="/scratch/kw68/wt5249/temp/maize/${GENOME}.sqlite"
@@ -330,11 +331,12 @@ singularity exec ${SINGULARITY_BINDPATH}/pasa_2.5.2.sif /usr/local/src/PASApipel
 ```
 
 ### Pseudogenes detection
+PseudoPipe is a homology-based computational pipeline that searches a mammalian genome and identifies pseudogene sequences. see [Link](#Additional-Information) for additional information.
 ### Input data and Resource
 - masked reference genome in FASTA format
 - final gff3 from Evidence Modeler
-- The PseudoPipe tool is used (see link above)
-- scripts can be found in [08_pseudogenes](https://github.com/mthang/genome_annotation/tree/main/scripts/08_pseudogenes) folder
+- The PseudoPipe tool is used. see [tool](#Single Threaded Tool) above
+- scripts [08_pseudogenes](https://github.com/mthang/genome_annotation/tree/main/scripts/08_pseudogenes) are available in the scripts folder
 
 ### Pre-pseudogenes detection
 - Step 1 [01_EVM_GFF2SEQ.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/08_pseudogenes/pre_pseudogenes/01_EVM_GFF2SEQ.sh)
@@ -519,12 +521,13 @@ do
 done < pasa.txt
 ```
 ### Align RNAseq to CDS and filter out unexpressed CDS
+Kallisto is a program for quantifying abundances of transcripts from bulk and single-cell RNA-Seq data, or more generally of target sequences using high-throughput sequencing reads. see [Link](#Additional-Information) for additional information.
 #### Input data and Resource
 - Reference genome in FASTA format
 - RNASeq data in FASTQ.gz format
 - Use PASA singularity container to extract CDS
-- Kallisto is used to perform the alignment
-- PBS scripts can be found in [09_kallisto](https://github.com/mthang/genome_annotation/tree/main/scripts/09_kallisto) folder.
+- Kallisto is used. see [Binary Tool](#Binary-Tool) above
+- PBS script [09_kallisto](https://github.com/mthang/genome_annotation/tree/main/scripts/09_kallisto) is available in the scripts folder.
 - Step 1 [01_get_CDS.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/09_kallisto/01_get_CDS.sh)
 ```
 GFF=pasa_pseudogenes_filtered_prekallisto.gff3
@@ -561,10 +564,11 @@ awk '$5!=0 {print}' ${SINGULARITY_BIND}/${GENOME}/kallisto/pasa_quant/abundance.
 cut -f1 ${SINGULARITY_BIND}/${GENOME}/kallisto/pasa_quant/cds_no_expression.tsv | sort | uniq | grep -v "target_id" > ${SINGULARITY_BIND}/${GENOME}/kallisto/pasa_quant/id_no_expression.txt
 ```
 ### Statistic of GFF3
+Mikado stat and grep are used to manipulate genome annotation tools. see [Link](#Additional-Information) for additional information.
 #### Input data and Resource
 - genome annotation file in GFF3 format
-- mikado singularity container is used (see link above)
-- PBS scripts [10_mikado](https://github.com/mthang/genome_annotation/tree/main/scripts/10_mikado] is located in the scripts folder
+- mikado singularity container is used. see [Singularity Image](#Singularity-Image) above
+- PBS scripts [10_mikado](https://github.com/mthang/genome_annotation/tree/main/scripts/10_mikado] is available in the scripts folder
 - before filtering out the unexpressed CDS
   - pre-filtering gff3 file run this script [01_mikado_pre_kallisto.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/10_mikado/01_mikado_pre_kallisto.sh)
 ```
@@ -588,11 +592,12 @@ singularity exec /g/data/kw68/singularity/mikado-2.3.3.sif mikado util grep ${SI
 singularity exec /g/data/kw68/singularity/mikado-2.3.3.sif mikado util stats ${SINGULARITY_BIND}/${GENOME}/gff/final/pasa_pseudogenes_filtered_postkallisto.gff3 ${SINGULARITY_BIND}/${GENOME}/gff/final/pasa_pseudogenes_filtered_postkallisto.stats
 ```
 ### Functional Annotation
+EggNOG-mapper is a tool for fast functional annotation of novel sequences. It uses precomputed orthologous groups and phylogenies from the eggNOG [database](http://eggnog5.embl.de) to transfer functional information from fine-grained orthologs only. see [Link](#Additional-Information) for additional information.
 #### Input data and Resource
 - Reference genome in FASTA format
 - gff3 file obtained in the post kallisto process
 - set up the eggNog database prior to run the functional annotation
-- PBS scripts can be found in [11_eggNog](https://github.com/mthang/genome_annotation/tree/main/scripts/11_eggNog]) folder.
+- PBS script [11_eggNog](https://github.com/mthang/genome_annotation/tree/main/scripts/11_eggNog]) is available in the scripts folder.
 - Step 1 [01_get_protein_sequence](https://github.com/mthang/genome_annotation/blob/main/scripts/11_eggNog/01_get_protein_sequence.sh) to obtain protein sequences
 ```
 GENOME="genome name or id"
@@ -617,10 +622,11 @@ TEMP_DIR=/tmp
 singularity exec ${SINGULARITY_BIND}/singularity/eggnog-mapper_2.1.9.sif emapper.py --data_dir /g/data/kw68/data/eggnogDB -m 'diamond' -i ${SINGULARITY_BIND}/genome_maize/${GENOME}/gff/final/final_prot.fa --itype 'proteins' --matrix 'BLOSUM62' --gapopen 11 --gapextend 1 --sensmode sensitive --dmnd_iterate no --score 0.001  --seed_ortholog_evalue 0.001 --target_orthologs=all --go_evidence=non-electronic --no_file_comments --report_orthologs  --output=${SINGULARITY_BIND}/genome_maize/${GENOME}/gff/final/eggNog --cpu 12 --scratch_dir ${SCRATCH_DIR} --temp_dir ${TEMP_DIR}
 ```
 ### Pangenome Analysis
+OrthoFinder is a fast, accurate and comprehensive platform for comparative genomics. It finds orthogroups and orthologs, infers rooted gene trees for all orthogroups and identifies all of the gene duplication events in those gene trees. It also infers a rooted species tree for the species being analysed and maps the gene duplication events from the gene trees to branches in the species tree. OrthoFinder also provides comprehensive statistics for comparative genomic analyses. OrthoFinder is simple to use and all you need to run it is a set of protein sequence files (one per species) in FASTA format.see [Link](#Additional-Information) for additional information.
 #### Input data and Resource
 - eggNog Functional annotation output file
 - protein sequences fasta file used in eggNog step
-- Orthofinder singularity container is used (see link above)
+- Orthofinder singularity container is used. see [Singularity Image](#Singularity-Image) above
 - scripts can be found in [12_orthofinder]https://github.com/mthang/genome_annotation/tree/main/scripts/12_orthofinder) folder.
 - Step 1 [01_reformat_fasta_header.sh](https://github.com/mthang/genome_annotation/blob/main/scripts/12_orthofinder/01_reformat_fasta_header.sh)
 ```
@@ -692,4 +698,10 @@ singularity exec ${SINGULARITY_BIND}/singularity/OrthoFinder-2.5.4.sif orthofind
 - [BRAKER](https://github.com/Gaius-Augustus/BRAKER)
 - [FGENESH](http://www.softberry.com/berry.phtml?topic=fgenesh_plus_plus&group=help&subgroup=pipelines)
 - [SNAP](https://github.com/KorfLab/SNAP)
-- [PASA](https://github.com/PASApipeline/PASApipeline/blob/master/docs/index.asciidoc) 
+- [Evidence Modeler](https://github.com/EVidenceModeler/EVidenceModeler/wiki)
+- [PASA](https://github.com/PASApipeline/PASApipeline/blob/master/docs/index.asciidoc)
+- [Pseudopipe](http://www.pseudogene.org/pseudopipe/)
+- [Kallisto](https://pachterlab.github.io/kallisto/about)
+- [Orthofinder](https://github.com/davidemms/OrthoFinder)
+- [eggNogMapper](https://github.com/eggnogdb/eggnog-mapper)
+- [Mikado](https://mikado.readthedocs.io/en/stable/Introduction/)
