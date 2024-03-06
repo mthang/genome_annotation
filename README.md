@@ -64,7 +64,7 @@ The raw data and reference genome download scripts are available [here](https://
 This Genome Annotation pipeline is designed to annotate plant genomes and improve the newly annotated genomes with transcriptome dataset. Genome Annotation pipeline can be summarized in few steps such as repeat detection, gene model prediction, obtain consensus gene model, add utr to the gene model (optional) and retain gene model with gene expression (if transcriptome data is available). Eggnog-mapper is used to perform the functional annotation of the gene model produced in the Genome Annotation Tool, and Orthofinder takes the protein sequences to perform the pangenome analysis.
 
 ### Repeat Modeler
-Repeat Modeler is a de novo transposable element (TE) family identification and modeling package.see [link](#Additional-Information)
+Repeat Modeler is a de novo transposable element (TE) family identification and modeling package.see [link](#Additional-Information) for additional information.
 #### Input data and Resource
 - Reference genome / de novo assembled genome in FASTA format
 - The Repeat Modeler singularity container is used (see the link above)
@@ -80,6 +80,7 @@ Where ${SINGULARITY_BINDPATH} is the variable defined the location of tool folde
 ```
 
 ### Repeat Masker
+RepeatMasker is a program that screens DNA sequences for interspersed repeats and low complexity DNA sequences.see [link](#Additional-Information) for additional information.
 #### Input data and Resource
 - Reference genome in FASTA format
 - Repeats from Repeat modelers in FASTA format
@@ -89,7 +90,8 @@ Where ${SINGULARITY_BINDPATH} is the variable defined the location of tool folde
 singularity exec ${SINGULARITY_BINDPATH}/tetools_repeat.sif RepeatMasker  -xsmall -pa 24 -gff -rmblast_dir /software/rmblast-2.11.0/bin/ -lib ${SINGULARITY_BINDPATH}/${GENOME}/consensi.fa.classified -dir ${SINGULARITY_BINDPATH}/${GENOME}/repeatmasker ${SINGULARITY_BINDPATH}/${GENOME}/${GENOME}.genome.fa
 ```
 
-### Aligment
+### Hisat2 - alignment tool
+Hisat2 is graph-based alignment of next generation sequencing reads to a population of genomes.see [Link](#Additional-Information) for additional informatio.
 #### Input data and Resource
 - Reference genome in FASTA format
 - RNAseq data (i.e single- or paired-end) in FASTQ.gz format
@@ -675,5 +677,7 @@ singularity exec ${SINGULARITY_BIND}/singularity/OrthoFinder-2.5.4.sif orthofind
    - Protein_Sequence
 
 ## Additional Information
-[1]: [Repeat Modeler](https://www.repeatmasker.org/RepeatModeler/) "Repeat Modeler"
-[2]: [PASA](https://github.com/PASApipeline/PASApipeline/blob/master/docs/index.asciidoc) "PASA" 
+- [Repeat Modeler](https://www.repeatmasker.org/RepeatModeler/)
+- [Repeat Masker](https://www.repeatmasker.org/)
+- [Hisat2](https://daehwankimlab.github.io/hisat2/manual/)
+- [PASA](https://github.com/PASApipeline/PASApipeline/blob/master/docs/index.asciidoc) 
